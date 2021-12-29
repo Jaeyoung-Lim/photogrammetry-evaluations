@@ -8,8 +8,10 @@ export OUTPUT_PATH=$2
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 instance=0
-num_images=10
-min_images=1
+num_images=$(ls ${DATASET_PATH}/images | wc -l)
+min_images=4
+
+echo "Total number of images: " $num_images
 
 while [ $instance -lt $num_images ]; do
     INSTANCE_DATASET_PATH=${OUTPUT_PATH}/output/${instance}
