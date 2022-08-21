@@ -30,7 +30,7 @@ while [ $instance -lt $num_images ]; do
         fi
     done
 
-    ./incremental_reconstruction.sh ${INSTANCE_DATASET_PATH} ${INSTANCE_DATASET_PATH}
+    ${SCRIPT_DIR}/reconstruction.sh ${INSTANCE_DATASET_PATH} ${INSTANCE_DATASET_PATH}
 
     instance=$(($instance + 1))
 done
