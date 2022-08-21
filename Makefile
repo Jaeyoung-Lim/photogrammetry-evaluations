@@ -3,5 +3,8 @@ path?=/home/jaeyoung/Downloads/gerrard-hall
 clean:
 	rm -rf output
 
-run:
-	./generate_subset.sh ${path} .
+increment:
+	./scripts/incremental_reconstruction.sh ${path} .
+
+reconstruct:
+	./scripts/reconstruction.sh ${path} .
