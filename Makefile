@@ -1,4 +1,4 @@
-path?=/home/jaeyoung/Downloads/gerrard-hall
+path?=${CURDIR}/dataset
 
 clean:
 	rm -rf output
