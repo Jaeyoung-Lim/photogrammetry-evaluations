@@ -3,7 +3,7 @@
 export DATASET_PATH=$1
 export OUTPUT_PATH=$2
 
-###TODO: Copy a subset of the path
+###TODO: Check if the dataset directory exists
 
 colmap feature_extractor \
    --database_path $DATASET_PATH/database.db \
