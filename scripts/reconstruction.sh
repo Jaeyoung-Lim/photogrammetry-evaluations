@@ -19,6 +19,14 @@ colmap mapper \
     --image_path $DATASET_PATH/images \
     --output_path $DATASET_PATH/sparse
 
+colmap model_aligner \
+    --input_path $DATASET_PATH/sparse/0/ \
+    --output_path $DATASET_PATH/sparse/0/ \
+    --ref_images_path $DATASET_PATH/camera.txt \
+    --alignment_type enu \
+    --robust_alignment 1 \
+    --robust_alignment_max_error 3
+
 mkdir $DATASET_PATH/dense
 
 colmap image_undistorter \
