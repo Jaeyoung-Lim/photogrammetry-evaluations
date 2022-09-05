@@ -31,6 +31,8 @@ if [ -z "${groundtruth_mesh_path}" ] || [ -z "${estimated_mesh_path}"]; then
     echo "Mandatory variables missing"
     usage
 else
+    echo "  - Groundtruth mesh path: " ${groundtruth_mesh_path}
+    echo "  - Estimated mesh path: " ${estimated_mesh_path}
     roslaunch photogrammetry_evaluations compare_mesh.launch visualization:=false path:=${output_path} \
-    groundtruth_mesh:=groundtruth_mesh_path estimated_mesh:=estimated_mesh_path
+    groundtruth_mesh:=${groundtruth_mesh_path} estimated_mesh:=${estimated_mesh_path}
 fi
