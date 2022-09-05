@@ -37,6 +37,8 @@
  * @author Jaeyoung Lim <jalim@ethz.ch>
  */
 
+#include "photogrammetry_evaluations/evaluation.h"
+
 #include "adaptive_viewutility/adaptive_viewutility.h"
 #include "adaptive_viewutility/evaluation.h"
 
@@ -132,7 +134,7 @@ int main(int argc, char **argv) {
   printGridmapInfo("Groundtruth map (After Transform)", groundtruth_map->getGridMap());
   printGridmapInfo("Estimated map", estimated_map->getGridMap());
 
-  groundtruth_map->CompareMapLayer(estimated_map->getGridMap());
+  Evaluation::CompareMapLayer(groundtruth_map->getGridMap(), estimated_map->getGridMap());
 
   ///TODO: Output data into a reasonable data format
 
