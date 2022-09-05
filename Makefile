@@ -1,8 +1,9 @@
 path?=${CURDIR}/dataset
 
 clean:
-	rm -rf dataset/*
-	
+	rm -rf dataset/dense/*
+	rm -rf dataset/sparse/*
+	rm -rf dataset/database.db
 
 increment:
 	./scripts/incremental_reconstruction.sh ${path} .
