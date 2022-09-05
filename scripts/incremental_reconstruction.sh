@@ -13,12 +13,17 @@ min_images=5
 increment=5
 max_images=20
 
-target_num_images=$((${num_images}>${max_images} ? ${num_images} : ${max_images}))
-echo "Total number of images: " ${num_images}
+target_num_images=$((${num_images}>${max_images} ? ${max_images} : ${num_images}))
+echo "Dataset path           : " ${DATASET_PATH}
+echo "Total number of images : " ${num_images}
 echo "Target number of images: " ${target_num_images}
+echo "====================================================="
+
+
 
 while [ $(( $((${increment}*${instance})) + ${min_images})) -lt $num_images ]; do
     INSTANCE_DATASET_PATH=${OUTPUT_PATH}/output/${instance}
+    echo "Instance dataset path:" ${INSTANCE_DATASET_PATH}
     mkdir -p ${INSTANCE_DATASET_PATH}/images
     num_subset_images=0
     cp ${DATASET_PATH}/camera.txt ${INSTANCE_DATASET_PATH}/camera.txt
@@ -36,9 +41,8 @@ while [ $(( $((${increment}*${instance})) + ${min_images})) -lt $num_images ]; d
     echo " - Running reconstruction..."
     ${SCRIPT_DIR}/reconstruction.sh ${INSTANCE_DATASET_PATH} ${INSTANCE_DATASET_PATH} > ${INSTANCE_DATASET_PATH}/reconstruction.log
     echo " - Reconstruction done"
-
     echo " - Running model evaluation..."
-    ${SCRIPT_DIR}/evaluate_model.sh -g "/dev/mesh/groundtruth_roi_meshlab.obj" \
+    ${SCRIPT_DIR}/evaluate_model.sh -g "/home/jaeyoung/dev/mesh/groundtruth_roi_meshlab.obj" \
     -m ${INSTANCE_DATASET_PATH}/dense/meshed-delaunay.ply -p ${INSTANCE_DATASET_PATH} > ${INSTANCE_DATASET_PATH}/evaluate.log
     echo " - Model evaluation done"
 

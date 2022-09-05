@@ -7,7 +7,7 @@ clean:
 	rm -rf output
 
 increment:
-	./scripts/incremental_reconstruction.sh ${path} .
+	./scripts/incremental_reconstruction.sh ${path} ${CURDIR}
 
 reconstruct:
 	./scripts/reconstruction.sh ${path} .
