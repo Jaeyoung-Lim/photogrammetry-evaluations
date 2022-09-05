@@ -1,7 +1,7 @@
 <launch>
 <!-- Compare mesh between two meshes -->
     <arg name="visualization" default="true"/>
-    <arg name="path" default="/home/jaeyoung/dev/random"/>
+    <arg name="path" default="/home/jaeyoung/dev/random/map_data.csv"/>
     <arg name="groundtruth_mesh" default="/home/jaeyoung/dev/mesh/groundtruth_roi_meshlab.obj"/>
     <arg name="estimated_mesh" default="$(find photogrammetry_evaluations)/dataset/dense/meshed-delaunay.ply"/>
 
@@ -10,7 +10,7 @@
         <param name="groundtruth_mesh_path" value="$(arg groundtruth_mesh)"/>
         <param name="estimated_mesh_path" value="$(arg estimated_mesh)"/>
         <param name="visualize" value="$(arg visualization)"/>
-        <param name="output_path" value="$(arg path)/map_data.csv"/>
+        <param name="output_path" value="$(arg path)"/>
     </node>
 
     <node pkg="grid_map_visualization" type="grid_map_visualization" name="grid_map_visualization" output="screen">

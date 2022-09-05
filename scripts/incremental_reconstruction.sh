@@ -43,7 +43,7 @@ while [ $(( $((${increment}*${instance})) + ${min_images})) -lt $num_images ]; d
     echo " - Reconstruction done"
     echo " - Running model evaluation..."
     ${SCRIPT_DIR}/evaluate_model.sh -g "/home/jaeyoung/dev/mesh/groundtruth_roi_meshlab.obj" \
-    -m ${INSTANCE_DATASET_PATH}/dense/meshed-delaunay.ply -p ${INSTANCE_DATASET_PATH} > ${INSTANCE_DATASET_PATH}/evaluate.log
+    -m ${INSTANCE_DATASET_PATH}/dense/meshed-delaunay.ply -p ${OUTPUT_PATH}/output/map_data_${instance}.csv > ${INSTANCE_DATASET_PATH}/evaluate.log
     echo " - Model evaluation done"
 
     instance=$(($instance + 1))
