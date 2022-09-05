@@ -134,47 +134,8 @@ int main(int argc, char **argv) {
 
   groundtruth_map->CompareMapLayer(estimated_map->getGridMap());
 
-  // grid_map::GridMap viewutility_map;
-  // if (!viewutility_map_path.empty()) {
-  //   std::cout << "[CompareMeshNode ] Loading Utility map: " << viewutility_map_path << std::endl;
-  //   if (grid_map::GridMapRosConverter::loadFromBag(viewutility_map_path, "/grid_map", viewutility_map)) {
-  //     Eigen::Translation3d airsim_start_pos(-374.47859375, 723.12984375, 286.77371094);
-  //     Eigen::AngleAxisd airsim_start_rot(0.0 * M_PI / 180.0, Eigen::Vector3d(0.0, 0.0, 1.0));
-  //     Eigen::Isometry3d airsim_transform = airsim_start_pos * airsim_start_rot;
+  ///TODO: Output data into a reasonable data format
 
-  //     viewutility_map =
-  //         viewutility_map.getTransformedMap(airsim_transform, "elevation", viewutility_map.getFrameId(), true);
-  //     viewutility_map = viewutility_map.getTransformedMap(transform, "elevation", viewutility_map.getFrameId(), true);
-
-  //     CopyMapLayer("geometric_prior", viewutility_map, groundtruth_map->getGridMap());
-  //     CopyMapLayer("ground_sample_distance", viewutility_map, groundtruth_map->getGridMap());
-  //     CopyMapLayer("incident_prior", viewutility_map, groundtruth_map->getGridMap());
-  //     CopyMapLayer("triangulation_prior", viewutility_map, groundtruth_map->getGridMap());
-  //     CopyMapLayer("visibility", viewutility_map, groundtruth_map->getGridMap());
-  //     CopyMapLayer("min_eigen_value", viewutility_map, groundtruth_map->getGridMap());
-  //   } else {
-  //     std::cout << "  - Failed to load utility map" << std::endl;
-  //   }
-  // }
-
-  // std::vector<MapData> map_data;
-  // grid_map::GridMap &grid_map = groundtruth_map->getGridMap();
-  // /// TODO: Iterate through gridmap to save map data in file
-  // for (grid_map::GridMapIterator iterator(grid_map); !iterator.isPastEnd(); ++iterator) {
-  //   const grid_map::Index index = *iterator;
-  //   MapData data;
-  //   grid_map.getPosition(index, data.position);
-  //   data.elevation = grid_map.at("elevation", index);
-  //   data.error = grid_map.at("elevation_difference", index);
-  //   data.utility = grid_map.at("geometric_prior", index);
-  //   data.incident_prior = grid_map.at("incident_prior", index);
-  //   data.triangulation_prior = grid_map.at("triangulation_prior", index);
-  //   data.ground_sample_distance = grid_map.at("ground_sample_distance", index);
-  //   data.visibility = grid_map.at("visibility", index);
-  //   data.min_eigen_value = grid_map.at("min_eigen_value", index);
-  //   map_data.push_back(data);
-  // }
-  // writeMapDataToFile(output_path, map_data);
   if (visualization_enabled) {
     while (true) {
       std::cout << "Publishing map!" << std::endl;

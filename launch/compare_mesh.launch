@@ -1,6 +1,6 @@
 <launch>
 <!-- Compare mesh between two meshes -->
-    <arg name="visualization" default="true"/>
+    <arg name="visualization" default="false"/>
     <arg name="path" default="/home/jaeyoung/dev/data/random"/>
 
     <node pkg="tf" type="static_transform_publisher" name="world_map" args="0 0 0 0 0 0 world map 10"/>
