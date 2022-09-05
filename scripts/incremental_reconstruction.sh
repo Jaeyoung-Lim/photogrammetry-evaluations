@@ -11,10 +11,13 @@ instance=0
 num_images=$(ls ${DATASET_PATH}/images | wc -l)
 min_images=5
 increment=5
+max_images=20
 
-echo "Total number of images: " $num_images
+target_num_images=$((${num_images}>${max_images} ? ${num_images} : ${max_images}))
+echo "Total number of images: " ${num_images}
+echo "Target number of images: " ${target_num_images}
 
-while [ $instance -lt $num_images ]; do
+while [ $instance -lt $target_num_images ]; do
     INSTANCE_DATASET_PATH=${OUTPUT_PATH}/output/${instance}
     mkdir -p ${INSTANCE_DATASET_PATH}/images
     num_subset_images=0
@@ -32,7 +35,8 @@ while [ $instance -lt $num_images ]; do
 
     ${SCRIPT_DIR}/reconstruction.sh ${INSTANCE_DATASET_PATH} ${INSTANCE_DATASET_PATH}
 
-    ${SCRIPT_DIR}/evaluate_model.sh ${INSTANCE_DATASET_PATH} ${INSTANCE_DATASET_PATH}
+    ${SCRIPT_DIR}/evaluate_model.sh -g "/dev/mesh/groundtruth_roi_meshlab.obj" \
+    -m ${INSTANCE_DATASET_PATH}/dense/meshed-delaunay.ply -o ${INSTANCE_DATASET_PATH}
 
     instance=$(($instance + 1))
 done
