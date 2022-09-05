@@ -97,7 +97,7 @@ int main(int argc, char **argv) {
   bool visualization_enabled{true};
   nh_private.param<std::string>("groundtruth_mesh_path", gt_path, "resources/cadastre.tif");
   nh_private.param<std::string>("estimated_mesh_path", est_path, "resources/cadastre.tif");
-  nh_private.param<std::string>("map_data_path", output_path, "");
+  nh_private.param<std::string>("output_path", output_path, "");
   nh_private.param<bool>("visualize", visualization_enabled, true);
 
   if (gt_path.empty() || est_path.empty()) {
@@ -137,6 +137,8 @@ int main(int argc, char **argv) {
   Evaluation::CompareMapLayer(groundtruth_map->getGridMap(), estimated_map->getGridMap());
 
   ///TODO: Output data into a reasonable data format
+  ///TODO: Write output data to file
+  groundtruth_map->OutputMapData({"elevation_difference", "elevation"}, output_path);
 
   if (visualization_enabled) {
     while (true) {
@@ -144,11 +146,6 @@ int main(int argc, char **argv) {
       MapPublishOnce(gt_map_pub, groundtruth_map);
       MapPublishOnce(est_map_pub, estimated_map);
       ros::Duration(2.0).sleep();
-      // if (!viewutility_map_path.empty()) {
-      //   grid_map_msgs::GridMap message;
-      //   grid_map::GridMapRosConverter::toMessage(viewutility_map, message);
-      //   utility_map_pub.publish(message);
-      // }
     }
   }
   return 0;
