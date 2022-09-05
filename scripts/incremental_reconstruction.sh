@@ -32,5 +32,7 @@ while [ $instance -lt $num_images ]; do
 
     ${SCRIPT_DIR}/reconstruction.sh ${INSTANCE_DATASET_PATH} ${INSTANCE_DATASET_PATH}
 
+    ${SCRIPT_DIR}/evaluate_model.sh ${INSTANCE_DATASET_PATH} ${INSTANCE_DATASET_PATH}
+
     instance=$(($instance + 1))
 done
