@@ -144,5 +144,4 @@ void Evaluation::CompareMapLayer(grid_map::GridMap &groundtruth_map, grid_map::G
     }
     std::cout << "  - Accuracy(Precision): " << accuracy << "(" << precision << "[m])" << std::endl;
   }
-  /// TODO: Implement Precision / Recall / F-scores
 }
