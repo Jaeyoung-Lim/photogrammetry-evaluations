@@ -13,5 +13,6 @@ colmap model_aligner \
     --ref_images_path $DATASET_PATH/camera.txt \
     --alignment_type enu \
     --robust_alignment 1 \
+    --ref_is_gps 0 \
     --robust_alignment_max_error 3 \
     --transform_path $DATASET_PATH/transform.txt
