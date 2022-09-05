@@ -17,15 +17,15 @@ target_num_images=$((${num_images}>${max_images} ? ${num_images} : ${max_images}
 echo "Total number of images: " ${num_images}
 echo "Target number of images: " ${target_num_images}
 
-while [ $instance -lt $target_num_images ]; do
+while [ $(( $((${increment}*${instance})) + ${min_images})) -lt $num_images ]; do
     INSTANCE_DATASET_PATH=${OUTPUT_PATH}/output/${instance}
     mkdir -p ${INSTANCE_DATASET_PATH}/images
     num_subset_images=0
+    cp ${DATASET_PATH}/camera.txt ${INSTANCE_DATASET_PATH}/camera.txt
     for FILE in ${DATASET_PATH}/images/* ; do
         echo "Copy file ${FILE}";
         cp $FILE ${INSTANCE_DATASET_PATH}/images/
         num_subset_images=$(($num_subset_images + 1))
-        min_subset_images=
         if [ $num_subset_images -ge $(( $((${increment}*${instance})) + ${min_images})) ]
         then
             echo "number of subset images: $num_subset_images instance: $instance"
@@ -36,7 +36,7 @@ while [ $instance -lt $target_num_images ]; do
     ${SCRIPT_DIR}/reconstruction.sh ${INSTANCE_DATASET_PATH} ${INSTANCE_DATASET_PATH}
 
     ${SCRIPT_DIR}/evaluate_model.sh -g "/dev/mesh/groundtruth_roi_meshlab.obj" \
-    -m ${INSTANCE_DATASET_PATH}/dense/meshed-delaunay.ply -o ${INSTANCE_DATASET_PATH}
+    -m ${INSTANCE_DATASET_PATH}/dense/meshed-delaunay.ply -p ${INSTANCE_DATASET_PATH}
 
     instance=$(($instance + 1))
 done
