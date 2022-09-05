@@ -9,20 +9,20 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 instance=0
 num_images=$(ls ${DATASET_PATH}/images | wc -l)
-min_images=5
-increment=5
+min_images=50
+increment=50
 
 echo "Total number of images: " $num_images
 
-while [ $instance -lt $num_images ]; do
+while [ $(( $((${increment}*${instance})) + ${min_images})) -lt $num_images ]; do
     INSTANCE_DATASET_PATH=${OUTPUT_PATH}/output/${instance}
     mkdir -p ${INSTANCE_DATASET_PATH}/images
     num_subset_images=0
+    cp ${DATASET_PATH}/camera.txt ${INSTANCE_DATASET_PATH}/camera.txt
     for FILE in ${DATASET_PATH}/images/* ; do
         echo "Copy file ${FILE}";
         cp $FILE ${INSTANCE_DATASET_PATH}/images/
         num_subset_images=$(($num_subset_images + 1))
-        min_subset_images=
         if [ $num_subset_images -ge $(( $((${increment}*${instance})) + ${min_images})) ]
         then
             echo "number of subset images: $num_subset_images instance: $instance"
