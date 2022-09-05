@@ -28,15 +28,19 @@ while [ $(( $((${increment}*${instance})) + ${min_images})) -lt $num_images ]; d
         num_subset_images=$(($num_subset_images + 1))
         if [ $num_subset_images -ge $(( $((${increment}*${instance})) + ${min_images})) ]
         then
-            echo "number of subset images: $num_subset_images instance: $instance"
+            echo "Number of subset images: $num_subset_images instance: $instance"
             break;
         fi
     done
 
-    ${SCRIPT_DIR}/reconstruction.sh ${INSTANCE_DATASET_PATH} ${INSTANCE_DATASET_PATH}
+    echo " - Running reconstruction..."
+    ${SCRIPT_DIR}/reconstruction.sh ${INSTANCE_DATASET_PATH} ${INSTANCE_DATASET_PATH} > ${INSTANCE_DATASET_PATH}/reconstruction.log
+    echo " - Reconstruction done"
 
+    echo " - Running model evaluation..."
     ${SCRIPT_DIR}/evaluate_model.sh -g "/dev/mesh/groundtruth_roi_meshlab.obj" \
-    -m ${INSTANCE_DATASET_PATH}/dense/meshed-delaunay.ply -p ${INSTANCE_DATASET_PATH}
+    -m ${INSTANCE_DATASET_PATH}/dense/meshed-delaunay.ply -p ${INSTANCE_DATASET_PATH} > ${INSTANCE_DATASET_PATH}/evaluate.log
+    echo " - Model evaluation done"
 
     instance=$(($instance + 1))
 done
