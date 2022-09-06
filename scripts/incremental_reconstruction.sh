@@ -13,17 +13,38 @@ min_images=5
 increment=5
 max_images=30
 
+usage() { echo "Usage: $0 [-i <increment>] [-n <num_images>] [-s <start_index>]" 1>&2; exit 1; }
+
+while getopts "p:g:m:" o; do
+    case "${o}" in
+        s)
+            min_images=${OPTARG}
+            ;;
+        n)
+            max_images=${OPTARG}
+            ;;
+        i)
+            increment=${OPTARG}
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
+
 target_num_images=$((${num_images}>${max_images} ? ${max_images} : ${num_images}))
+echo "====================================================="
 echo "Dataset path           : " ${DATASET_PATH}
 echo "Total number of images : " ${num_images}
 echo "Target number of images: " ${target_num_images}
-echo "====================================================="
 
 
 
 while [ $(( $((${increment}*${instance})) + ${min_images})) -lt $num_images ]; do
     INSTANCE_DATASET_PATH=${OUTPUT_PATH}/output/${instance}
-    echo "Instance dataset path:" ${INSTANCE_DATASET_PATH}
+    echo "====================================================="
+    echo "Instance:" ${instance}
+    echo "  - instance dataset path:" ${INSTANCE_DATASET_PATH}
     mkdir -p ${INSTANCE_DATASET_PATH}/images
     num_subset_images=0
     cp ${DATASET_PATH}/camera.txt ${INSTANCE_DATASET_PATH}/camera.txt
@@ -39,12 +60,12 @@ while [ $(( $((${increment}*${instance})) + ${min_images})) -lt $num_images ]; d
     done
 
     echo " - Running reconstruction..."
-    ${SCRIPT_DIR}/reconstruction.sh ${INSTANCE_DATASET_PATH} ${INSTANCE_DATASET_PATH} > ${INSTANCE_DATASET_PATH}/reconstruction.log
-    echo " - Reconstruction done"
-    echo " - Running model evaluation..."
+    ${SCRIPT_DIR}/reconstruction.sh ${INSTANCE_DATASET_PATH} ${INSTANCE_DATASET_PATH} > ${INSTANCE_DATASET_PATH}/reconstruction.log 2>&1
+    echo " - Reconstruction done log: " 
+    echo " - Running model evaluation..." ${INSTANCE_DATASET_PATH}/reconstruction.log
     ${SCRIPT_DIR}/evaluate_model.sh -g "/home/jaeyoung/dev/mesh/groundtruth_roi_meshlab.obj" \
-    -m ${INSTANCE_DATASET_PATH}/dense/meshed-delaunay.ply -p ${OUTPUT_PATH}/output/map_data_${instance}.csv > ${INSTANCE_DATASET_PATH}/evaluate.log
-    echo " - Model evaluation done"
+    -m ${INSTANCE_DATASET_PATH}/dense/meshed-delaunay.ply -p ${OUTPUT_PATH}/output/map_data_${instance}.csv > ${INSTANCE_DATASET_PATH}/evaluate.log 2>&1
+    echo " - Model evaluation done log: " ${INSTANCE_DATASET_PATH}/evaluate.log
 
     instance=$(($instance + 1))
 done
