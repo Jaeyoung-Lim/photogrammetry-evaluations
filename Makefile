@@ -6,8 +6,9 @@ clean:
 	rm -rf dataset/database.db
 	rm -rf output
 
+increment: SHELL:=/bin/bash
 increment:
-	./scripts/incremental_reconstruction.sh ${path} ${CURDIR}
+	./scripts/incremental_reconstruction.sh -d ${path} -o ${CURDIR}
 
 reconstruct:
 	./scripts/reconstruction.sh ${path} .
