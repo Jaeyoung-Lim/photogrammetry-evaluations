@@ -11,7 +11,7 @@ instance=0
 num_images=$(ls ${DATASET_PATH}/images | wc -l)
 min_images=5
 increment=5
-max_images=20
+max_images=30
 
 target_num_images=$((${num_images}>${max_images} ? ${max_images} : ${num_images}))
 echo "Dataset path           : " ${DATASET_PATH}
