@@ -26,10 +26,11 @@ def getPrecision(data_df, threshold):
     return completeness
 
 def model_evaluation(path, threshold):
-    #TODO: Iterate on csv files to plot
-    precision=np.zeros(10)
-    completeness=np.zeros(10)
-    num_images = np.zeros(10)
+    num_data = len([1 for x in list(os.scandir(path)) if x.is_file()])
+    precision=np.zeros(num_data+1)
+    completeness=np.zeros(num_data+1)
+    num_images = np.zeros(num_data+1)
+
     for filename in os.listdir(path):
         if filename.endswith('.csv'):
             index = int(filename.split('_')[2].split('.')[0])
