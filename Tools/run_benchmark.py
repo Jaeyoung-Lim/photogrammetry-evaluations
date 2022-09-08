@@ -1,13 +1,17 @@
 import evaluate_map
 import argparse
 import matplotlib.pyplot as plt
+import os
 
 def benchmark(path, threshold):
     figure1 = plt.figure("Map Data")
 
     #TODO: Iterate over multiple datasets
-    output_path = path
-    num_images, completeness, precision = evaluate_map.model_evaluation(output_path, threshold)
+    for filename in os.listdir(path):
+        benchmark_dir = os.path.join(path, filename)
+        print(benchmark_dir)
+        num_images, completeness, precision = evaluate_map.model_evaluation(benchmark_dir, threshold)
+        print(completeness)
 
     axis1 = figure1.add_subplot(2, 1, 1)
     axis1.set_title('Completeness')
