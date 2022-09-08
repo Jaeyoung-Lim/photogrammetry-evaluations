@@ -21,6 +21,12 @@ colmap mapper \
 
 mkdir -p $DATASET_PATH/sparse/1
 
+echo "============================================"
+echo "COLMAP Model Aligner"
+echo "  - input path          : " $DATASET_PATH/sparse/0/
+echo "  - output path         : " $DATASET_PATH/sparse/1/
+echo "  - reference image path: " $DATASET_PATH/camera.txt
+
 colmap model_aligner \
     --input_path $DATASET_PATH/sparse/0/ \
     --output_path $DATASET_PATH/sparse/1 \
@@ -30,6 +36,11 @@ colmap model_aligner \
     --ref_is_gps 0 \
     --robust_alignment_max_error 3 \
     --transform_path $DATASET_PATH/transform.txt
+
+echo "============================================"
+echo "COLMAP Image_undistorter"
+echo "  - input path          : " $DATASET_PATH/sparse/1/
+echo "  - output path         : " $DATASET_PATH/dense
 
 mkdir $DATASET_PATH/dense
 

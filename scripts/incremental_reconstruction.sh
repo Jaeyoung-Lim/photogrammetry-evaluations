@@ -2,7 +2,7 @@
 
 # This script generates a subset of the original dataset and runs the photogrammetry
 
-set -e
+# set -e
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -49,10 +49,11 @@ echo "Increment              : " ${increment}
 
 
 
-while [ $(( $((${increment}*${instance})) + ${min_images})) -lt $num_images ]; do
-    INSTANCE_DATASET_PATH=${OUTPUT_PATH}/output/${instance}
+while [ $(( $((${increment}*${instance})) + ${min_images})) -le $target_num_images ]; do
+    INSTANCE_DATASET_PATH=${OUTPUT_PATH}/${instance}
     echo "====================================================="
     echo "Instance:" ${instance}
+    echo "  - number of images:" $(( $((${increment}*${instance})) + ${min_images}))
     echo "  - instance dataset path:" ${INSTANCE_DATASET_PATH}
     mkdir -p ${INSTANCE_DATASET_PATH}/images
     num_subset_images=0
@@ -73,7 +74,7 @@ while [ $(( $((${increment}*${instance})) + ${min_images})) -lt $num_images ]; d
     echo " - Reconstruction done log: " 
     echo " - Running model evaluation..." ${INSTANCE_DATASET_PATH}/reconstruction.log
     ${SCRIPT_DIR}/evaluate_model.sh -g "/home/jaeyoung/dev/mesh/groundtruth_roi_meshlab.obj" \
-    -m ${INSTANCE_DATASET_PATH}/dense/meshed-delaunay.ply -p ${OUTPUT_PATH}/output/map_data_${instance}.csv > ${INSTANCE_DATASET_PATH}/evaluate.log 2>&1
+    -m ${INSTANCE_DATASET_PATH}/dense/meshed-delaunay.ply -p ${OUTPUT_PATH}/map_data_${instance}.csv > ${INSTANCE_DATASET_PATH}/evaluate.log 2>&1
     echo " - Model evaluation done log: " ${INSTANCE_DATASET_PATH}/evaluate.log
 
     instance=$(($instance + 1))
