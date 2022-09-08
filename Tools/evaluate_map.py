@@ -1,12 +1,8 @@
 #!/usr/bin/env python3
 # This python script evaluates mission results
 
-import matplotlib.pyplot as plt
 import numpy as np
-import math
 import pandas as pd
-import sys
-import yaml
 import os
 
 
