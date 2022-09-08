@@ -63,7 +63,7 @@ while [ ${instance} -le ${num_benchmarks} ]; do
         echo "Cannot find dataset path: " ${dataset_path}/${instance} 
         exit 1
     fi
-    instance_output_path=${output_path}/bechmark_${instance}
+    instance_output_path=${output_path}/benchmark_${instance}
     echo "  Benchmark result path:" ${instance_output_path}
     mkdir -p ${instance_output_path}
     ${SCRIPT_DIR}/incremental_reconstruction.sh -d ${dataset_path}/${instance} -o ${instance_output_path} -i ${increment} -n ${max_images}
