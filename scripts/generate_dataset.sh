@@ -7,6 +7,7 @@ set -e
 # TODO: Run airsim client to generate data multiple times
 
 num_simulations=1
+num_samples=50
 
 while getopts "n:o:" arg; do
     case ${arg} in
@@ -15,6 +16,9 @@ while getopts "n:o:" arg; do
             ;;
         n)
             num_simulations=${OPTARG}
+            ;;
+        s)
+            num_samples=${OPTARG}
             ;;
         *)
             usage
@@ -27,6 +31,9 @@ if [ -z $dataset_path ]; then
     exit 1
 fi
 
+echo "Datset path: " ${dataset_path}
+
+
 instance=0
 
 while [ ${instance} -lt ${num_simulations} ]; do
@@ -35,8 +42,8 @@ while [ ${instance} -lt ${num_simulations} ]; do
     image_path=${instance_path}/images
     mkdir -p ${instance_path}
     mkdir -p ${image_path}
-    roslaunch airsim_client test_random_airsim.launch output_path:=${image_path}\
-        visualization:=false > ${instance_path}/dataset.log 2>&1
+    roslaunch airsim_client test_random_airsim.launch output_path:=${instance_path}\
+        visualization:=false num_samples:=${num_samples} > ${instance_path}/dataset.log 2>&1
 
     instance=$(($instance + 1))
 done

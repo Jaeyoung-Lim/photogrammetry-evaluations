@@ -8,7 +8,7 @@ clean:
 
 increment: SHELL:=/bin/bash
 increment:
-	./scripts/incremental_reconstruction.sh -d ${path} -o ${CURDIR}
+	./scripts/incremental_reconstruction.sh -d ${path} -o ${CURDIR}/output
 
 reconstruct:
 	./scripts/reconstruction.sh ${path} .
