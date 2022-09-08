@@ -2,11 +2,17 @@
 
 # This script generates a subset of the original dataset and runs the photogrammetry
 
+set -e
+
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 usage() { echo "Usage: $0 [-i <increment>] [-n <num_images>] [-s <start_index>]" 1>&2; exit 1; }
 
-while getopts "d:o:p:g:m:" arg; do
+min_images=5
+increment=5
+max_images=30
+
+while getopts ":i:d:o:p:g:n:" arg; do
     case ${arg} in
         s)
             min_images=${OPTARG}
@@ -30,10 +36,8 @@ while getopts "d:o:p:g:m:" arg; do
 done
 
 instance=0
-num_images=$(ls ${DATASET_PATH}/images | wc -l)
-min_images=5
-increment=5
-max_images=30
+num_images=$(ls ${DATASET_PATH}/images/*.jpeg | wc -l)
+
 
 target_num_images=$((${num_images}>${max_images} ? ${max_images} : ${num_images}))
 echo "====================================================="
@@ -41,6 +45,7 @@ echo "Dataset path           : " ${DATASET_PATH}
 echo "Output  path           : " ${OUTPUT_PATH}
 echo "Total number of images : " ${num_images}
 echo "Target number of images: " ${target_num_images}
+echo "Increment              : " ${increment}
 
 
 

@@ -45,6 +45,7 @@ def model_evaluation(path, threshold):
 def accumulate_evaluation(path, threshold):
     figure1 = plt.figure("Map Data")
 
+    #TODO: Iterate over multiple datasets
     output_path = path
     num_images, completeness, precision = model_evaluation(output_path, threshold)
 
