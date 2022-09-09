@@ -9,11 +9,12 @@ start_time=$(date +%s.%3N)
 
 touch $OUTPUT_PATH/timing.txt
 
+process_start_time=$(date +%s.%3N)
+
 colmap feature_extractor \
    --database_path $DATASET_PATH/database.db \
    --image_path $DATASET_PATH/images
 
-echo "Elapsed Times for colmap"
 current_time=$(date +%s.%3N)
 echo "  - Feature extractor [seconds]:  " $(echo "scale=3; $current_time - $process_start_time" | bc) >> $OUTPUT_PATH/timing.txt
 
