@@ -9,7 +9,7 @@ set -e
 num_simulations=1
 num_samples=50
 
-while getopts "n:o:" arg; do
+while getopts "s:n:o:" arg; do
     case ${arg} in
         o)
             dataset_path=${OPTARG}
