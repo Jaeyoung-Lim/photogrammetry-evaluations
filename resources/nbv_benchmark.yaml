@@ -1,0 +1,7 @@
+active:
+  name: "Active Mapping"
+  path: "/mnt/dataset/Results/dc_greedy/benchmark_0"
+
+coverage_optimal:
+  name: "Coverage Pattern"
+  path: "/mnt/dataset/Results/dc_coverage/benchmark_0"
