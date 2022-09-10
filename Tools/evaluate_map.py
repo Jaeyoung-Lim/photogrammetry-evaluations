@@ -8,13 +8,13 @@ import os
 
 # Planner benchmark
 
-def getCompleteness(data_df, threshold):
+def getPrecision(data_df, threshold):
     elevation_diff =  np.array(data_df['elevation_difference'])
     total = np.count_nonzero(~np.isnan(elevation_diff))
     precision = (np.abs(elevation_diff) < threshold).sum() / total
     return precision
 
-def getPrecision(data_df, threshold):
+def getCompleteness(data_df, threshold):
     elevation_diff =  np.array(data_df['elevation_difference'])
     total = np.prod(elevation_diff.shape)
     completeness = (np.abs(elevation_diff) < threshold).sum() / total

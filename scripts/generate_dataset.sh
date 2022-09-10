@@ -8,8 +8,8 @@ set -e
 
 num_simulations=1
 num_samples=50
-
-while getopts "s:n:o:" arg; do
+simulation_duration=200
+while getopts "t:s:n:o:" arg; do
     case ${arg} in
         o)
             dataset_path=${OPTARG}
@@ -19,6 +19,9 @@ while getopts "s:n:o:" arg; do
             ;;
         s)
             num_samples=${OPTARG}
+            ;;
+        t)
+            simulation_duration=${OPTARG}
             ;;
         *)
             usage
@@ -42,8 +45,10 @@ while [ ${instance} -lt ${num_simulations} ]; do
     image_path=${instance_path}/images
     mkdir -p ${instance_path}
     mkdir -p ${image_path}
-    roslaunch airsim_client test_random_airsim.launch output_path:=${instance_path}\
-        visualization:=false num_samples:=${num_samples} > ${instance_path}/dataset.log 2>&1
+    # roslaunch airsim_client test_random_airsim.launch output_path:=${instance_path}\
+    #     visualization:=false num_samples:=${num_samples} > ${instance_path}/dataset.log 2>&1
+    roslaunch airsim_client test_planner_airsim.launch output_path:=${instance_path}\
+        visualization:=false max_experiment_duration:=${simulation_duration} > ${instance_path}/dataset.log 2>&1
 
     instance=$(($instance + 1))
 done

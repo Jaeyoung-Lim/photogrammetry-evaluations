@@ -22,6 +22,7 @@ while getopts ":i:d:o:p:g:n:" arg; do
             ;;
         i)
             increment=${OPTARG}
+            min_images=${increment}
             ;;
         d)
             DATASET_PATH=${OPTARG}
