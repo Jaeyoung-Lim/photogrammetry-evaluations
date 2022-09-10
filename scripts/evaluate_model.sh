@@ -27,7 +27,7 @@ done
 shift $((OPTIND-1))
 echo ${groundtruth_mesh_path}
 echo ${estimated_mesh_path}
-if [ -z "${groundtruth_mesh_path}" ] || [ -z "${estimated_mesh_path}"]; then
+if [ -z "${groundtruth_mesh_path}" ] || [ -z "${estimated_mesh_path}" ]; then
     echo "Mandatory variables missing"
     usage
 else

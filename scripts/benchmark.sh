@@ -9,7 +9,8 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 usage() { echo "Usage: $0 [-i <increment>] [-n <num_images>] [-s <start_index>]" 1>&2; exit 1; }
 
 num_benchmarks=1
-max_images=10
+max_images=200
+increment=20
 
 while getopts "i:d:n:o:p:g:m:" arg; do
     case ${arg} in
