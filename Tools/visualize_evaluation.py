@@ -31,7 +31,8 @@ def accumulate_evaluation(path, threshold):
             data_path = value['path']
             data_label = value['name']
             data_increment = value['increment']
-            print(data_path)
+            if 'timestamp_path' in value:
+                print('timestamp_path: ', value['timestamp_path'])
             plot_evaluation(ax, data_label, data_path, threshold, data_increment)
         plt.tight_layout()
         plt.show()
