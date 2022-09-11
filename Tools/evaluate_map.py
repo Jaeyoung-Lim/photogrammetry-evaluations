@@ -20,19 +20,20 @@ def getCompleteness(data_df, threshold):
     completeness = (np.abs(elevation_diff) < threshold).sum() / total
     return completeness
 
-def model_evaluation(path, threshold):
-    num_data = len([1 for x in list(os.scandir(path)) if x.is_file()])
+def model_evaluation(path, threshold, increment):
+    num_data = 10
     precision=np.zeros(num_data+1)
     completeness=np.zeros(num_data+1)
-    num_images = np.zeros(num_data+1)
+    num_images = range(0, (num_data+1) * increment, increment)
 
     for filename in os.listdir(path):
         if filename.endswith('.csv'):
             index = int(filename.split('_')[2].split('.')[0])
-            num_images[index+1] = 5 * (index+1)
             f = os.path.join(path, filename)
             if os.path.isfile(f):
                 data_df = pd.read_csv(f)
                 precision[index+1] = getPrecision(data_df, threshold)
                 completeness[index+1] = getCompleteness(data_df, threshold)
+    print(" - Images: ", num_images)
+    print(precision)
     return num_images, completeness, precision
