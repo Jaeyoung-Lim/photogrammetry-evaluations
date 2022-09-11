@@ -24,7 +24,7 @@ def model_evaluation(path, threshold, increment):
     num_data = 10
     precision=np.zeros(num_data+1)
     completeness=np.zeros(num_data+1)
-    num_images = range(0, (num_data+1) * increment, increment)
+    num_images = np.arange(0, (num_data+1) * increment, increment)
 
     for filename in os.listdir(path):
         if filename.endswith('.csv'):
