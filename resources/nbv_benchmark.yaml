@@ -1,7 +1,14 @@
 nbvgreedy:
   name: "Ours"
   path: "/mnt/dataset/Results/nbv_greedy/benchmark_0"
+  increment: 5
 
 random:
   name: "Random"
   path: "/mnt/dataset/Results/nbv_random/benchmark_0"
+  increment: 5
+
+roberts:
+  name: "Roberts"
+  path: "/mnt/dataset/Results/nbv_roberts/benchmark_0"
+  increment: 5

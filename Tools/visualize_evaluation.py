@@ -12,18 +12,26 @@ def plot_increment_evaluation(ax, name, path, threshold, data_increment):
 
     ax[0].set_xlabel('Number of Images')
     ax[0].set_ylabel('Precision')
-    ax[0].plot(2*num_images, precision, '-o', label=name)
+    ax[0].plot(num_images, precision, '-o', label=name)
     ax[0].set_xlim([0.0, max(num_images)])
+    ax[0].set_xticks(np.arange(0, max(num_images), step=data_increment))
+    ax[0].set_yticks(np.arange(0, 1.1, step=0.5))
+    ax[0].set_ylim([0.0, 1.1])
     ax[0].grid(True)
     ax[0].legend(loc='lower right')
 
     ax[1].set_xlabel('Number of Images')
     ax[1].set_ylabel('Completeness')
-    ax[1].plot(2*num_images, completeness, '-o', label=name)
+    ax[1].plot(num_images, completeness, '-o', label=name)
     ax[1].set_xlim([0.0, max(num_images)])
+    ax[1].set_xticks(np.arange(0, max(num_images), step=data_increment))
+    ax[1].set_yticks(np.arange(0, 1.1, step=0.5))
+    ax[1].set_ylim([0.0, 1.1])
     ax[1].grid(True)
-    ax[1].legend()
     ax[1].legend(loc='lower right')
+
+    # h, l = ax[0].get_legend_handles_labels()
+    # ax[1].legend(h, l, borderaxespad=0)
 
 def plot_timed_evaluation(ax, name, path, threshold, data_increment, timestamped_path):
     num_images, completeness, precision = evaluate_map.model_evaluation(path, threshold, data_increment)
@@ -46,17 +54,20 @@ def plot_timed_evaluation(ax, name, path, threshold, data_increment, timestamped
     ax[0].set_xlim([0.0, max(timestamp)])
     ax[0].grid(True)
     ax[0].legend(loc='lower right')
+    ax[0].set_xticks(np.arange(0, max(timestamp), step=20))
 
     ax[1].set_xlabel('Time[s]')
     ax[1].set_ylabel('Completeness')
     ax[1].plot(timestamp, completeness, '-o', label=name)
     ax[1].set_xlim([0.0, max(timestamp)])
+    ax[1].set_xticks(np.arange(0, max(timestamp), step=20))
+    ax[1].set_yticks(np.arange(0, 1.1, step=0.5))
     ax[1].grid(True)
-    ax[1].legend()
     ax[1].legend(loc='lower right')
 
 def accumulate_evaluation(path, threshold):
     figure1, ax = plt.subplots(2, 1)
+    figure1.set_size_inches((6, 4))
     with open(path) as file:
         list = yaml.load(file, Loader=yaml.FullLoader)
         print(list)

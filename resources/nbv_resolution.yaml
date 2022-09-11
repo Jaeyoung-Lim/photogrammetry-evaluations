@@ -1,14 +1,29 @@
 nbvgreedy:
-  name: "Active Mapping"
+  name: "Ours 1440X1080"
   path: "/mnt/dataset/Results/nbv_greedy/benchmark_0"
   increment: 5
 
 nbvgreedy720540:
-  name: "720X540"
+  name: "Ours 720X540"
   path: "/mnt/dataset/Results/nbv_greedy_720540/benchmark_0"
   increment: 5
 
 nbvgreedy360270:
-  name: "360X720"
+  name: "Ours 360X720"
   path: "/mnt/dataset/Results/nbv_greedy_360270/benchmark_0"
+  increment: 5
+
+nbvroberts360270:
+  name: "Roberts[24] 360X720"
+  path: "/mnt/dataset/Results/nbv_roberts_360270/benchmark_0"
+  increment: 5
+
+nbvroberts720540:
+  name: "Roberts[24] 720X540"
+  path: "/mnt/dataset/Results/nbv_roberts_360270/benchmark_0"
+  increment: 5
+
+nbvexploration720540:
+  name: "Exploration 720X540"
+  path: "/mnt/dataset/Results/nbv_roberts_360270/benchmark_0"
   increment: 5
