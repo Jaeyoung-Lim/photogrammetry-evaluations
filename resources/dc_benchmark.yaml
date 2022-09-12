@@ -1,7 +1,15 @@
-active:
-  name: "Active Mapping"
+ours:
+  name: "Ours"
   path: "/mnt/dataset/Results/dc_greedy/benchmark_0"
+  increment: 10
+
+# exploration:
+#   name: "Exploration"
+#   path: "/mnt/dataset/Results/dc_greedy/benchmark_0"
+#   increment: 10
 
 coverage_optimal:
-  name: "Coverage Pattern"
+  name: "Coverage"
   path: "/mnt/dataset/Results/dc_coverage/benchmark_0"
+  timestamp_path: "/mnt/dataset/Datasets/dc_coverage/0/coverage_benchmark.txt"
+  increment: 5

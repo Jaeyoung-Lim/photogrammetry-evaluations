@@ -1,11 +1,19 @@
 nbvgreedy:
-  name: "Active Mapping"
+  name: "Ours"
   path: "/mnt/dataset/Results/nbv_greedy/benchmark_0"
+  increment: 5
 
-nbvgreedy720540:
-  name: "720X540"
-  path: "/mnt/dataset/Results/nbv_greedy_720540/benchmark_0"
+random:
+  name: "Random"
+  path: "/mnt/dataset/Results/nbv_random/benchmark_0"
+  increment: 5
 
-nbvgreedy360270:
-  name: "360X720"
-  path: "/mnt/dataset/Results/nbv_greedy_360270/benchmark_0"
+roberts:
+  name: "Roberts [24]"
+  path: "/mnt/dataset/Results/nbv_roberts/benchmark_0"
+  increment: 5
+
+exploration:
+  name: "Exploration"
+  path: "/mnt/dataset/Results/nbv_exploration/benchmark_0"
+  increment: 5

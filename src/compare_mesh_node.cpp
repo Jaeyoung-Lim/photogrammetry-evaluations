@@ -45,45 +45,6 @@
 #include "grid_map_ros/GridMapRosConverter.hpp"
 #include "terrain_navigation/profiler.h"
 
-#include <gdal/cpl_string.h>
-#include <gdal/gdal.h>
-#include <gdal/gdal_priv.h>
-#include <gdal/ogr_p.h>
-#include <gdal/ogr_spatialref.h>
-
-static constexpr const double kDefaultHomeX = 683565.21;     // LV03/CH1903
-static constexpr const double kDefaultHomeY = 250246.85;     // rad
-static constexpr const double kDefaultHomeAltitude = 488.0;  // meters
-
-static Eigen::Vector3d transformCoordinates(ESPG src_coord, ESPG tgt_coord, const Eigen::Vector3d source_coordinates) {
-  OGRSpatialReference source, target;
-  source.importFromEPSG(static_cast<int>(src_coord));
-  target.importFromEPSG(static_cast<int>(tgt_coord));
-
-  OGRPoint p;
-  p.setX(source_coordinates(0));
-  p.setY(source_coordinates(1));
-  p.setZ(source_coordinates(2));
-  p.assignSpatialReference(&source);
-
-  p.transformTo(&target);
-  Eigen::Vector3d target_coordinates(p.getX(), p.getY(), p.getZ());
-  return target_coordinates;
-}
-
-Eigen::Vector3d readOffsetFile(const std::string path) {
-  Eigen::Vector3d offset;
-  std::ifstream file(path);
-  std::string data = "";
-  int i = 0;
-  while (getline(file, data, ' ')) {
-    offset(i) = std::stod(data);
-    i++;
-  }
-  std::cout << "offset" << offset.transpose() << std::endl;
-  return offset;
-}
-
 int main(int argc, char **argv) {
   ros::init(argc, argv, "adaptive_viewutility");
   ros::NodeHandle nh("");
