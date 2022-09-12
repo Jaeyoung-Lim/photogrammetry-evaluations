@@ -28,7 +28,17 @@ nbvroberts360270:
   path: "/mnt/dataset/Results/nbv_roberts_360270/benchmark_0"
   increment: 5
 
+nbvexploration14401080:
+  name: "Exploration 1440X1080"
+  path: "/mnt/dataset/Results/nbv_exploration/benchmark_0"
+  increment: 5
+
 # nbvexploration720540:
 #   name: "Exploration 720X540"
 #   path: "/mnt/dataset/Results/nbv_exploration_720540/benchmark_0"
 #   increment: 5
+
+nbvexploration360270:
+  name: "Exploration 360X270"
+  path: "/mnt/dataset/Results/nbv_exploration_360270/benchmark_0"
+  increment: 5

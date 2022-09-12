@@ -13,7 +13,7 @@ roberts:
   path: "/mnt/dataset/Results/nbv_roberts/benchmark_0"
   increment: 5
 
-# exploration:
-#   name: "Exploration"
-#   path: "/mnt/dataset/Results/nbv_exploration/benchmark_0"
-#   increment: 5
+exploration:
+  name: "Exploration"
+  path: "/mnt/dataset/Results/nbv_exploration/benchmark_0"
+  increment: 5
