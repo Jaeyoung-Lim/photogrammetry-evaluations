@@ -13,17 +13,22 @@ nbvgreedy360270:
   path: "/mnt/dataset/Results/nbv_greedy_360270/benchmark_0"
   increment: 5
 
-nbvroberts360270:
-  name: "Roberts[24] 360X720"
-  path: "/mnt/dataset/Results/nbv_roberts_360270/benchmark_0"
+nbvroberts:
+  name: "Roberts[24] 1440X1080"
+  path: "/mnt/dataset/Results/nbv_roberts/benchmark_0"
   increment: 5
 
 nbvroberts720540:
   name: "Roberts[24] 720X540"
+  path: "/mnt/dataset/Results/nbv_roberts_720540/benchmark_0"
+  increment: 5
+
+nbvroberts360270:
+  name: "Roberts[24] 360X270"
   path: "/mnt/dataset/Results/nbv_roberts_360270/benchmark_0"
   increment: 5
 
-nbvexploration720540:
-  name: "Exploration 720X540"
-  path: "/mnt/dataset/Results/nbv_roberts_360270/benchmark_0"
-  increment: 5
+# nbvexploration720540:
+#   name: "Exploration 720X540"
+#   path: "/mnt/dataset/Results/nbv_exploration_720540/benchmark_0"
+#   increment: 5
