@@ -50,7 +50,7 @@ def plot_timed_evaluation(ax, name, path, threshold, data_increment, timestamped
 
     ax[0].set_xlabel('Time[s]')
     ax[0].set_ylabel('Precision')
-    ax[0].plot(timestamp, precision, '-o', label=name)
+    ax[0].plot(timestamp, precision, '-o', label=name, markersize=4)
     ax[0].set_xlim([0.0, max(timestamp)])
     ax[0].grid(True)
     ax[0].legend(loc='lower right')
@@ -58,7 +58,7 @@ def plot_timed_evaluation(ax, name, path, threshold, data_increment, timestamped
 
     ax[1].set_xlabel('Time[s]')
     ax[1].set_ylabel('Completeness')
-    ax[1].plot(timestamp, completeness, '-o', label=name)
+    ax[1].plot(timestamp, completeness, '-o', label=name, markersize=4)
     ax[1].set_xlim([0.0, max(timestamp)])
     ax[1].set_xticks(np.arange(0, max(timestamp), step=20))
     ax[1].set_yticks(np.arange(0, 1.1, step=0.5))
