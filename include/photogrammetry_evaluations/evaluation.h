@@ -31,20 +31,19 @@
  *
  ****************************************************************************/
 
-
-
-#include <vector>
 #include <iostream>
+#include <vector>
 
 #include <grid_map_core/grid_map_core.hpp>
 
 class Evaluation {
-  public:
-    Evaluation();
-    ~Evaluation(){};
-    static void CompareMapLayer(grid_map::GridMap &groundtruth_map, grid_map::GridMap &reference_map);
-  private:
-    static std::vector<double> calculateErrors(grid_map::GridMap &groundtruth_map,
-                                                    const grid_map::GridMap &reference_map);
-    static double CalculatePrecision(const std::vector<double> &error_vector, const double threshold);
+ public:
+  Evaluation();
+  ~Evaluation(){};
+  static void CompareMapLayer(grid_map::GridMap &groundtruth_map, grid_map::GridMap &reference_map);
+
+ private:
+  static std::vector<double> calculateErrors(grid_map::GridMap &groundtruth_map,
+                                             const grid_map::GridMap &reference_map);
+  static double CalculatePrecision(const std::vector<double> &error_vector, const double threshold);
 };
