@@ -48,7 +48,7 @@ if [ -z ${output_path} ]; then
     exit 1
 fi
 
-instance=0
+instance=2
 
 echo "====================================================="
 echo "Starting Benchmark"
