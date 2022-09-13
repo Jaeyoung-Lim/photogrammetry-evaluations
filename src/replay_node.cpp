@@ -120,10 +120,12 @@ int main(int argc, char **argv) {
   ros::Publisher viewpoint_pub = nh.advertise<visualization_msgs::MarkerArray>("viewpoints", 1, true);
 
   std::string benchmark_dir_path, viewset_path;
+  int maximum_number_views{50};
   bool visualization_enabled{true};
   nh_private.param<std::string>("viewset_path", viewset_path, "resources/executed_viewset.csv");
   nh_private.param<std::string>("benchmark_dir_path", benchmark_dir_path, "output");
   nh_private.param<bool>("visualize", visualization_enabled, true);
+  nh_private.param<int>("maximum_number_views", maximum_number_views, maximum_number_views);
 
   if (benchmark_dir_path.empty()) {
     std::cout << "Missing groundtruth mesh or the estimated mesh" << std::endl;
@@ -145,6 +147,9 @@ int main(int argc, char **argv) {
     ros::Duration(2.0).sleep();
 
     while (true) {
+      if (instance > maximum_number_views) {
+          break;
+      }
       std::cout << "Publishing map!" << std::endl;
       /// TODO: Load viewpoint progress
       if (instance < candidate_viewpoints.size()) {

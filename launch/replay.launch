@@ -9,6 +9,7 @@
         <param name="benchmark_dir_path" value="$(arg path)"/>
         <param name="viewset_path" value="$(arg dataset_path)"/>
         <param name="visualize" value="$(arg visualization)"/>
+        <param name="maximum_number_views" value="25"/>
         <param name="output_path" value="$(arg path)"/>
     </node>
 
