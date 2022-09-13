@@ -81,10 +81,10 @@ int main(int argc, char **argv) {
   std::shared_ptr<ViewUtilityMap> estimated_map = std::make_shared<ViewUtilityMap>(est_map);
   estimated_map->initializeFromMesh(est_path, resolution);
 
-  //Offset groundtruth mesh with unreal coordinates
+  // Offset groundtruth mesh with unreal coordinates
   Eigen::Vector3d player_start{Eigen::Vector3d(374.47859375, -723.12984375, -286.77371094)};
   Eigen::Vector3d adjusted_offset = player_start;
-  
+
   Eigen::Translation3d meshlab_translation(adjusted_offset(0), adjusted_offset(1), adjusted_offset(2));
   Eigen::AngleAxisd meshlab_rotation(0.0 * M_PI / 180.0, Eigen::Vector3d(0.0, 0.0, 1.0));
 
@@ -97,8 +97,8 @@ int main(int argc, char **argv) {
 
   Evaluation::CompareMapLayer(groundtruth_map->getGridMap(), estimated_map->getGridMap());
 
-  ///TODO: Output data into a reasonable data format
-  ///TODO: Write output data to file
+  /// TODO: Output data into a reasonable data format
+  /// TODO: Write output data to file
   groundtruth_map->OutputMapData({"elevation_difference", "elevation"}, output_path);
 
   if (visualization_enabled) {

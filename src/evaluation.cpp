@@ -39,12 +39,10 @@
 
 #include "photogrammetry_evaluations/evaluation.h"
 
-Evaluation::Evaluation() {
-
-}
+Evaluation::Evaluation() {}
 
 std::vector<double> Evaluation::calculateErrors(grid_map::GridMap &groundtruth_map,
-                                                    const grid_map::GridMap &reference_map) {
+                                                const grid_map::GridMap &reference_map) {
   groundtruth_map.add("elevation_difference");
   groundtruth_map["elevation_difference"].setConstant(NAN);
 

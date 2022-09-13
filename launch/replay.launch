@@ -1,0 +1,22 @@
+<launch>
+<!-- Compare mesh between two meshes -->
+    <arg name="visualization" default="true"/>
+    <arg name="path" default="/mnt/dataset/Results/nbv_greedy/benchmark_0"/>
+    <arg name="dataset_path" default="/mnt/dataset/Datasets/nbv_greedy/0/executed_viewset.csv"/>
+
+    <node pkg="tf" type="static_transform_publisher" name="world_map" args="0 0 0 0 0 0 world map 10"/>
+    <node pkg="photogrammetry_evaluations" type="replay_node" name="test_mesh" output="screen" required="true">
+        <param name="benchmark_dir_path" value="$(arg path)"/>
+        <param name="viewset_path" value="$(arg dataset_path)"/>
+        <param name="visualize" value="$(arg visualization)"/>
+        <param name="output_path" value="$(arg path)"/>
+    </node>
+
+    <node pkg="grid_map_visualization" type="grid_map_visualization" name="grid_map_visualization" output="screen">
+        <rosparam command="load" file="$(find adaptive_viewutility)/launch/visualize.yaml" />
+    </node>
+
+    <group if="$(arg visualization)">
+        <node type="rviz" name="rviz" pkg="rviz" args="-d $(find photogrammetry_evaluations)/launch/config_replay.rviz" required="true"/>
+    </group>
+</launch>
