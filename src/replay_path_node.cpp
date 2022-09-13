@@ -96,11 +96,11 @@ void readTrajectory(const std::string path, std::vector<VehicleState> &vehicle_s
   return;
 }
 
-void publishCameraPath(const ros::Publisher pub, const std::vector<ViewPoint> viewpoints) {
+void publishCameraPath(const ros::Publisher pub, std::vector<VehicleState> &vehicle_states) {
   std::vector<geometry_msgs::PoseStamped> posestampedhistory_vector;
-  for (auto viewpoint : viewpoints) {
+  for (auto viewpoint : vehicle_states) {
     posestampedhistory_vector.insert(posestampedhistory_vector.begin(),
-                                     vector3d2PoseStampedMsg(viewpoint.getCenterLocal(), viewpoint.getOrientation()));
+                                     vector3d2PoseStampedMsg(viewpoint.position, viewpoint.attitude));
   }
 
   nav_msgs::Path msg;
@@ -155,6 +155,7 @@ int main(int argc, char **argv) {
   }
 
   std::vector<VehicleState> vehicle_states;
+  std::vector<VehicleState> state_history;
   std::vector<Trajectory> candidate_viewpoints;
   if (!trajectory_path.empty()) {
     readTrajectory(trajectory_path, vehicle_states, candidate_viewpoints);
@@ -175,11 +176,12 @@ int main(int argc, char **argv) {
       if (time > replay_time) {
         break;
       }
+      state_history.push_back(state);
 
       int image_count = state.image_count;
       if (image_count > view_count) {
-        viewpoints.push_back(ViewPoint(instance, candidate_viewpoints[image_count].states[0].position,
-                                       candidate_viewpoints[image_count].states[0].attitude));
+        viewpoints.push_back(ViewPoint(instance, candidate_viewpoints[image_count-1].states[0].position,
+                                       candidate_viewpoints[image_count-1].states[0].attitude));
         view_count = image_count;
         if (view_count % increment == 0) {
           grid_map::GridMap est_map;
@@ -197,7 +199,7 @@ int main(int argc, char **argv) {
         }
         instance++;
         publishViewpoint(viewpoint_pub, viewpoints, Eigen::Vector3d(0.0, 0.0, 1.0));
-        publishCameraPath(camera_path_pub, viewpoints);
+        publishCameraPath(camera_path_pub, state_history);
       }
     }
   }
