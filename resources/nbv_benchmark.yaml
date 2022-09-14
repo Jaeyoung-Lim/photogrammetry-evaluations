@@ -5,7 +5,7 @@ nbvgreedy:
 
 random:
   name: "Random"
-  path: "/mnt/dataset/Results/nbv_random/benchmark_0"
+  benchmark_path: "/mnt/dataset/Results/nbv_random"
   increment: 5
 
 roberts:
