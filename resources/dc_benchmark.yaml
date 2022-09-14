@@ -1,6 +1,7 @@
 ours:
   name: "Ours"
   path: "/mnt/dataset/Results/dc_greedy/benchmark_0"
+  # timestamp_path: "/mnt/dataset/Datasets/dc_coverage/0/coverage_benchmark.txt"
   increment: 10
 
 # exploration:
@@ -12,4 +13,4 @@ coverage_optimal:
   name: "Coverage"
   path: "/mnt/dataset/Results/dc_coverage/benchmark_0"
   timestamp_path: "/mnt/dataset/Datasets/dc_coverage/0/coverage_benchmark.txt"
-  increment: 5
+  increment: 10

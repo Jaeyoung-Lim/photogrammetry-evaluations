@@ -69,7 +69,7 @@ def plot_benchmark(ax, name, path, threshold, data_increment):
 
 def plot_timed_evaluation(ax, name, path, threshold, data_increment, timestamped_path):
     num_images, completeness, precision = evaluate_map.model_evaluation(path, threshold, data_increment)
-
+    print(num_images)
     print("Number of images", num_images)
     data_df = pd.read_csv(timestamped_path)
 
@@ -80,6 +80,7 @@ def plot_timed_evaluation(ax, name, path, threshold, data_increment, timestamped
     for images in num_images:
         idx = [ n for n,i in enumerate(image_count_raw) if i>=images ][0]
         print("images", images, ' idx ', idx, ' timestamp', timestamp_raw[idx])
+        print("idx: ", idx)
         timestamp = np.append(timestamp, timestamp_raw[idx]) 
 
     ax[0].set_xlabel('Time[s]')
@@ -88,13 +89,13 @@ def plot_timed_evaluation(ax, name, path, threshold, data_increment, timestamped
     ax[0].set_xlim([0.0, max(timestamp)])
     ax[0].grid(True)
     ax[0].legend(loc='lower right')
-    ax[0].set_xticks(np.arange(0, max(timestamp), step=20))
+    ax[0].set_xticks(np.arange(0, max(timestamp), step=40))
 
     ax[1].set_xlabel('Time[s]')
     ax[1].set_ylabel('Completeness')
     ax[1].plot(timestamp, completeness, '-o', label=name, markersize=4)
     ax[1].set_xlim([0.0, max(timestamp)])
-    ax[1].set_xticks(np.arange(0, max(timestamp), step=20))
+    ax[1].set_xticks(np.arange(0, max(timestamp), step=40))
     ax[1].set_yticks(np.arange(0, 1.1, step=0.5))
     ax[1].grid(True)
     ax[1].legend(loc='lower right')
