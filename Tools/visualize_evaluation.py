@@ -13,7 +13,7 @@ def plot_increment_evaluation(ax, name, linestyle, path, threshold, data_increme
 
     ax[0].set_xlabel('Number of Images')
     ax[0].set_ylabel('Precision')
-    ax[0].plot(num_images, precision, linestyle, label=name, markersize=6)
+    ax[0].plot(num_images, precision, linestyle, label=name, markersize=4)
     ax[0].fill_between(num_images, precision, precision, alpha=0.2)
     ax[0].set_xlim([0.0, max(num_images)])
     ax[0].set_xticks(np.arange(0, max(num_images), step=data_increment))
@@ -24,7 +24,7 @@ def plot_increment_evaluation(ax, name, linestyle, path, threshold, data_increme
 
     ax[1].set_xlabel('Number of Images')
     ax[1].set_ylabel('Completeness')
-    ax[1].plot(num_images, completeness, linestyle, label=name, markersize=6)
+    ax[1].plot(num_images, completeness, linestyle, label=name, markersize=4)
     ax[1].fill_between(num_images,completeness, completeness, alpha=0.2)
     ax[1].set_xlim([0.0, max(num_images)])
     ax[1].set_xticks(np.arange(0, max(num_images), step=data_increment))
@@ -133,7 +133,10 @@ def accumulate_evaluation(path, threshold):
             else:
                 data_path = value['path']
                 plot_increment_evaluation(ax, data_label, linestyle, data_path, threshold, data_increment)
-
+        handles, labels = ax[1].get_legend_handles_labels()
+        # plt.legend(bbox_to_anchor=(1, -0.1), loc="lower right", bbox_transform=figure1.transFigure, ncol=3)
+        leg = ax[1].legend(handles, labels, bbox_to_anchor=(1, -0.2), loc="lower right", bbox_transform=figure1.transFigure, ncol=3, )
+        figure1.savefig('samplefigure.pdf', bbox_extra_artists=(leg,), bbox_inches='tight')
         plt.tight_layout()
         plt.show()
 
