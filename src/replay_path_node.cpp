@@ -201,6 +201,7 @@ int main(int argc, char **argv) {
         publishViewpoint(viewpoint_pub, viewpoints, Eigen::Vector3d(0.0, 0.0, 1.0));
         publishCameraPath(camera_path_pub, state_history);
       }
+      ros::Duration(0.2).sleep();
     }
   }
   std::cout << "Finished replay" << std::endl;
