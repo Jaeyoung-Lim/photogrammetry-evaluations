@@ -13,25 +13,25 @@ def plot_increment_evaluation(ax, name, linestyle, path, threshold, data_increme
 
     ax[0].set_xlabel('Number of Images')
     ax[0].set_ylabel('Precision')
-    ax[0].plot(num_images, precision, linestyle, label=name, markersize=6)
+    ax[0].plot(num_images, precision, linestyle, label=name, markersize=4)
     ax[0].fill_between(num_images, precision, precision, alpha=0.2)
     ax[0].set_xlim([0.0, max(num_images)])
     ax[0].set_xticks(np.arange(0, max(num_images), step=data_increment))
     ax[0].set_yticks(np.arange(0, 1.1, step=0.5))
     ax[0].set_ylim([0.0, 1.1])
     ax[0].grid(True)
-    # ax[0].legend(loc='lower right')
+    ax[0].legend(loc='lower right')
 
     ax[1].set_xlabel('Number of Images')
     ax[1].set_ylabel('Completeness')
-    ax[1].plot(num_images, completeness, linestyle, label=name, markersize=6)
+    ax[1].plot(num_images, completeness, linestyle, label=name, markersize=4)
     ax[1].fill_between(num_images,completeness, completeness, alpha=0.2)
     ax[1].set_xlim([0.0, max(num_images)])
     ax[1].set_xticks(np.arange(0, max(num_images), step=data_increment))
     ax[1].set_yticks(np.arange(0, 1.1, step=0.5))
     ax[1].set_ylim([0.0, 1.1])
     ax[1].grid(True)
-    # ax[1].legend(loc='lower right')
+    ax[1].legend(loc='lower right')
 
 def plot_benchmark(ax, name, linestyle, path, threshold, data_increment):
 
@@ -66,7 +66,7 @@ def plot_benchmark(ax, name, linestyle, path, threshold, data_increment):
     ax[0].set_yticks(np.arange(0, 1.1, step=0.5))
     ax[0].set_ylim([0.0, 1.1])
     ax[0].grid(True)
-    # ax[0].legend(loc='lower right')
+    ax[0].legend(loc='lower right')
 
     ax[1].set_xlabel('Number of Images')
     ax[1].set_ylabel('Completeness')
@@ -77,7 +77,7 @@ def plot_benchmark(ax, name, linestyle, path, threshold, data_increment):
     ax[1].set_yticks(np.arange(0, 1.1, step=0.5))
     ax[1].set_ylim([0.0, 1.1])
     ax[1].grid(True)
-    # ax[1].legend(loc='lower right')
+    ax[1].legend(loc='lower right')
 
 
 def plot_timed_evaluation(ax, name, linestyle, path, threshold, data_increment, timestamped_path):

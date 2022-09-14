@@ -3,6 +3,7 @@ ours:
   path: "/mnt/dataset/Results/dc_greedy/benchmark_0"
   # timestamp_path: "/mnt/dataset/Datasets/dc_coverage/0/coverage_benchmark.txt"
   increment: 10
+  linestyle: '-o'
 
 # exploration:
 #   name: "Exploration"
@@ -14,3 +15,4 @@ coverage_optimal:
   path: "/mnt/dataset/Results/dc_coverage/benchmark_0"
   timestamp_path: "/mnt/dataset/Datasets/dc_coverage/0/coverage_benchmark.txt"
   increment: 10
+  linestyle: '-o'
