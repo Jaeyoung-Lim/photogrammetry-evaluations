@@ -1,44 +1,53 @@
-nbvgreedy:
-  name: "Ours 1440X1080"
-  path: "/mnt/dataset/Results/nbv_greedy/benchmark_0"
-  increment: 5
-
-nbvgreedy720540:
-  name: "Ours 720X540"
-  path: "/mnt/dataset/Results/nbv_greedy_720540/benchmark_0"
-  increment: 5
-
-nbvgreedy360270:
-  name: "Ours 360X720"
-  path: "/mnt/dataset/Results/nbv_greedy_360270/benchmark_0"
-  increment: 5
-
 nbvroberts:
   name: "Roberts[24] 1440X1080"
   path: "/mnt/dataset/Results/nbv_roberts/benchmark_0"
   increment: 5
+  linestyle: '-oy'
 
 nbvroberts720540:
   name: "Roberts[24] 720X540"
   path: "/mnt/dataset/Results/nbv_roberts_720540/benchmark_0"
   increment: 5
+  linestyle: '--^y'
 
 nbvroberts360270:
   name: "Roberts[24] 360X270"
   path: "/mnt/dataset/Results/nbv_roberts_360270/benchmark_0"
   increment: 5
+  linestyle: '-.xy'
 
 nbvexploration14401080:
   name: "Exploration 1440X1080"
   path: "/mnt/dataset/Results/nbv_exploration/benchmark_0"
   increment: 5
+  linestyle: '-om'
 
-# nbvexploration720540:
-#   name: "Exploration 720X540"
-#   path: "/mnt/dataset/Results/nbv_exploration_720540/benchmark_0"
-#   increment: 5
+nbvexploration720540:
+  name: "Exploration 720X540"
+  path: "/mnt/dataset/Results/nbv_exploration_720540/benchmark_0"
+  increment: 5
+  linestyle: '--^m'
 
 nbvexploration360270:
   name: "Exploration 360X270"
   path: "/mnt/dataset/Results/nbv_exploration_360270/benchmark_0"
   increment: 5
+  linestyle: '-.xm'
+
+nbvgreedy:
+  name: "Ours 1440X1080"
+  path: "/mnt/dataset/Results/nbv_greedy/benchmark_0"
+  increment: 5
+  linestyle: '-oc'
+
+nbvgreedy720540:
+  name: "Ours 720X540"
+  path: "/mnt/dataset/Results/nbv_greedy_720540/benchmark_0"
+  increment: 5
+  linestyle: '--^c'
+
+nbvgreedy360270:
+  name: "Ours 360X720"
+  path: "/mnt/dataset/Results/nbv_greedy_360270/benchmark_0"
+  increment: 5
+  linestyle: '-.xc'

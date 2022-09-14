@@ -8,35 +8,32 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-def plot_increment_evaluation(ax, name, path, threshold, data_increment):
+def plot_increment_evaluation(ax, name, linestyle, path, threshold, data_increment):
     num_images, completeness, precision = evaluate_map.model_evaluation(path, threshold, data_increment)
 
     ax[0].set_xlabel('Number of Images')
     ax[0].set_ylabel('Precision')
-    ax[0].plot(num_images, precision, '-o', label=name, markersize=4)
+    ax[0].plot(num_images, precision, linestyle, label=name, markersize=6)
     ax[0].fill_between(num_images, precision, precision, alpha=0.2)
     ax[0].set_xlim([0.0, max(num_images)])
     ax[0].set_xticks(np.arange(0, max(num_images), step=data_increment))
     ax[0].set_yticks(np.arange(0, 1.1, step=0.5))
     ax[0].set_ylim([0.0, 1.1])
     ax[0].grid(True)
-    ax[0].legend(loc='lower right')
+    # ax[0].legend(loc='lower right')
 
     ax[1].set_xlabel('Number of Images')
     ax[1].set_ylabel('Completeness')
-    ax[1].plot(num_images, completeness, '-o', label=name, markersize=4)
+    ax[1].plot(num_images, completeness, linestyle, label=name, markersize=6)
     ax[1].fill_between(num_images,completeness, completeness, alpha=0.2)
     ax[1].set_xlim([0.0, max(num_images)])
     ax[1].set_xticks(np.arange(0, max(num_images), step=data_increment))
     ax[1].set_yticks(np.arange(0, 1.1, step=0.5))
     ax[1].set_ylim([0.0, 1.1])
     ax[1].grid(True)
-    ax[1].legend(loc='lower right')
+    # ax[1].legend(loc='lower right')
 
-    # h, l = ax[0].get_legend_handles_labels()
-    # ax[1].legend(h, l, borderaxespad=0)
-
-def plot_benchmark(ax, name, path, threshold, data_increment):
+def plot_benchmark(ax, name, linestyle, path, threshold, data_increment):
 
     image_count = np.array([])
     accumulate_completeness=np.array([])
@@ -62,28 +59,28 @@ def plot_benchmark(ax, name, path, threshold, data_increment):
 
     ax[0].set_xlabel('Number of Images')
     ax[0].set_ylabel('Precision')
-    ax[0].plot(num_images, mean_precision, '-o', label=name, markersize=4)
+    ax[0].plot(num_images, mean_precision, linestyle, label=name, markersize=4)
     ax[0].fill_between(num_images, mean_precision-std_precision, mean_precision+std_precision, alpha=0.2)
     ax[0].set_xlim([0.0, max(num_images)])
     ax[0].set_xticks(np.arange(0, max(num_images), step=data_increment))
     ax[0].set_yticks(np.arange(0, 1.1, step=0.5))
     ax[0].set_ylim([0.0, 1.1])
     ax[0].grid(True)
-    ax[0].legend(loc='lower right')
+    # ax[0].legend(loc='lower right')
 
     ax[1].set_xlabel('Number of Images')
     ax[1].set_ylabel('Completeness')
-    ax[1].plot(num_images, mean_completeness, '-o', label=name, markersize=4)
+    ax[1].plot(num_images, mean_completeness, linestyle, label=name, markersize=4)
     ax[1].fill_between(num_images, mean_completeness-std_completeness, mean_completeness+std_completeness, alpha=0.2)
     ax[1].set_xlim([0.0, max(num_images)])
     ax[1].set_xticks(np.arange(0, max(num_images), step=data_increment))
     ax[1].set_yticks(np.arange(0, 1.1, step=0.5))
     ax[1].set_ylim([0.0, 1.1])
     ax[1].grid(True)
-    ax[1].legend(loc='lower right')
+    # ax[1].legend(loc='lower right')
 
 
-def plot_timed_evaluation(ax, name, path, threshold, data_increment, timestamped_path):
+def plot_timed_evaluation(ax, name, linestyle, path, threshold, data_increment, timestamped_path):
     num_images, completeness, precision = evaluate_map.model_evaluation(path, threshold, data_increment)
     print(num_images)
     print("Number of images", num_images)
@@ -125,16 +122,17 @@ def accumulate_evaluation(path, threshold):
         for key, value in list.items():
             data_label = value['name']
             data_increment = value['increment']
+            linestyle = value['linestyle']
             if 'timestamp_path' in value:
                 data_path = value['path']
                 timestamped_path = value['timestamp_path']
-                plot_timed_evaluation(ax, data_label, data_path, threshold, data_increment, timestamped_path)
+                plot_timed_evaluation(ax, data_label, linestyle, data_path, threshold, data_increment, timestamped_path)
             elif 'benchmark_path' in value:
                 benchmark_path = value['benchmark_path']
-                plot_benchmark(ax, data_label, benchmark_path, threshold, data_increment)
+                plot_benchmark(ax, data_label, linestyle, benchmark_path, threshold, data_increment)
             else:
                 data_path = value['path']
-                plot_increment_evaluation(ax, data_label, data_path, threshold, data_increment)
+                plot_increment_evaluation(ax, data_label, linestyle, data_path, threshold, data_increment)
 
         plt.tight_layout()
         plt.show()
