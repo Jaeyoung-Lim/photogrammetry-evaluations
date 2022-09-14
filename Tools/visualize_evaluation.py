@@ -14,6 +14,7 @@ def plot_increment_evaluation(ax, name, path, threshold, data_increment):
     ax[0].set_xlabel('Number of Images')
     ax[0].set_ylabel('Precision')
     ax[0].plot(num_images, precision, '-o', label=name, markersize=4)
+    ax[0].fill_between(num_images, precision, precision, alpha=0.2)
     ax[0].set_xlim([0.0, max(num_images)])
     ax[0].set_xticks(np.arange(0, max(num_images), step=data_increment))
     ax[0].set_yticks(np.arange(0, 1.1, step=0.5))
@@ -24,6 +25,7 @@ def plot_increment_evaluation(ax, name, path, threshold, data_increment):
     ax[1].set_xlabel('Number of Images')
     ax[1].set_ylabel('Completeness')
     ax[1].plot(num_images, completeness, '-o', label=name, markersize=4)
+    ax[1].fill_between(num_images,completeness, completeness, alpha=0.2)
     ax[1].set_xlim([0.0, max(num_images)])
     ax[1].set_xticks(np.arange(0, max(num_images), step=data_increment))
     ax[1].set_yticks(np.arange(0, 1.1, step=0.5))
@@ -37,15 +39,31 @@ def plot_increment_evaluation(ax, name, path, threshold, data_increment):
 def plot_benchmark(ax, name, path, threshold, data_increment):
 
     image_count = np.array([])
+    accumulate_completeness=np.array([])
+    accumulate_precision=np.array([])
     for dirname in os.listdir(path):
         print(dirname)
         instance_path = os.path.join(path, dirname)
         num_images, completeness, precision = evaluate_map.model_evaluation(instance_path, threshold, data_increment)
+        if (accumulate_completeness.size == 0):
+            accumulate_completeness = completeness
+        else:
+            accumulate_completeness = np.vstack([accumulate_completeness, completeness])
+        if (accumulate_precision.size == 0):
+            accumulate_precision = precision
+        else:
+            accumulate_precision = np.vstack([accumulate_precision, precision])
+    
+    mean_completeness = np.mean(accumulate_completeness, axis=0)
+    std_completeness = np.std(accumulate_completeness, axis=0)
 
+    mean_precision = np.mean(accumulate_precision, axis=0)
+    std_precision = np.std(accumulate_completeness, axis=0)
 
     ax[0].set_xlabel('Number of Images')
     ax[0].set_ylabel('Precision')
-    ax[0].plot(num_images, precision, '-o', label=name, markersize=4)
+    ax[0].plot(num_images, mean_precision, '-o', label=name, markersize=4)
+    ax[0].fill_between(num_images, mean_precision-std_precision, mean_precision+std_precision, alpha=0.2)
     ax[0].set_xlim([0.0, max(num_images)])
     ax[0].set_xticks(np.arange(0, max(num_images), step=data_increment))
     ax[0].set_yticks(np.arange(0, 1.1, step=0.5))
@@ -55,16 +73,14 @@ def plot_benchmark(ax, name, path, threshold, data_increment):
 
     ax[1].set_xlabel('Number of Images')
     ax[1].set_ylabel('Completeness')
-    ax[1].plot(num_images, completeness, '-o', label=name, markersize=4)
+    ax[1].plot(num_images, mean_completeness, '-o', label=name, markersize=4)
+    ax[1].fill_between(num_images, mean_completeness-std_completeness, mean_completeness+std_completeness, alpha=0.2)
     ax[1].set_xlim([0.0, max(num_images)])
     ax[1].set_xticks(np.arange(0, max(num_images), step=data_increment))
     ax[1].set_yticks(np.arange(0, 1.1, step=0.5))
     ax[1].set_ylim([0.0, 1.1])
     ax[1].grid(True)
     ax[1].legend(loc='lower right')
-
-    # h, l = ax[0].get_legend_handles_labels()
-    # ax[1].legend(h, l, borderaxespad=0)
 
 
 def plot_timed_evaluation(ax, name, path, threshold, data_increment, timestamped_path):

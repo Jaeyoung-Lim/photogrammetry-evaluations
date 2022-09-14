@@ -11,7 +11,10 @@ import os
 def getPrecision(data_df, threshold):
     elevation_diff =  np.array(data_df['elevation_difference'])
     total = np.count_nonzero(~np.isnan(elevation_diff))
-    precision = (np.abs(elevation_diff) < threshold).sum() / total
+    if total is not 0:
+        precision = (np.abs(elevation_diff) < threshold).sum() / total
+    else:
+        precision = 0.0
     return precision
 
 def getCompleteness(data_df, threshold):
@@ -34,6 +37,4 @@ def model_evaluation(path, threshold, increment):
                 data_df = pd.read_csv(f)
                 precision[index+1] = getPrecision(data_df, threshold)
                 completeness[index+1] = getCompleteness(data_df, threshold)
-    print(" - Images: ", num_images)
-    print(precision)
     return num_images, completeness, precision
