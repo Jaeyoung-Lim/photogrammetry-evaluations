@@ -5,13 +5,13 @@ nbvgreedy:
   linestyle: '-oc'
 
 random:
-  name: "Random"
+  name: "Random(mean)"
   benchmark_path: "/mnt/dataset/Results/nbv_random"
   increment: 5
-  linestyle: '-or'
+  linestyle: '--or'
 
 roberts:
-  name: "Roberts [24]"
+  name: "Spherical"
   path: "/mnt/dataset/Results/nbv_roberts/benchmark_0"
   increment: 5
   linestyle: '-oy'

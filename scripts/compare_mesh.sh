@@ -60,9 +60,9 @@ while [ ${mesh_instance}  -lt 10 ]; do
     echo "====================================================="
     groundtruth_path=/home/jaeyoung/dev/mesh/groundtruth_roi_meshlab.obj
     estimatedmesh_path=${INSTANCE_DATASET_PATH}/dense/meshed-poisson.ply
-    output_path=${OUTPUT_PATH}/map_data_${mesh_instance}.csv
+    output_path=${OUTPUT_PATH}/poisson/poisson_map_${mesh_instance}.csv
     echo "Mesh Instance:" ${mesh_instance}
-    echo "Output Path: " ${OUTPUT_PATH}/map_data_${mesh_instance}.csv
+    echo "Output Path: " ${output_path}
     echo "Mesh Path: " ${estimatedmesh_path}
     echo "Groundtruth Path: " ${groundtruth_path}
     mkdir -p ${OUTPUT_PATH}/poisson

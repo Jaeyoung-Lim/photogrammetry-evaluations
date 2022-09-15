@@ -11,7 +11,7 @@ import numpy as np
 def plot_increment_evaluation(ax, name, linestyle, path, threshold, data_increment):
     num_images, completeness, precision = evaluate_map.model_evaluation(path, threshold, data_increment)
 
-    ax[0].set_xlabel('Number of Images')
+    # ax[0].set_xlabel('Number of Images')
     ax[0].set_ylabel('Precision')
     ax[0].plot(num_images, precision, linestyle, label=name, markersize=4)
     ax[0].fill_between(num_images, precision, precision, alpha=0.2)
@@ -20,7 +20,7 @@ def plot_increment_evaluation(ax, name, linestyle, path, threshold, data_increme
     ax[0].set_yticks(np.arange(0, 1.1, step=0.5))
     ax[0].set_ylim([0.0, 1.1])
     ax[0].grid(True)
-    ax[0].legend(loc='lower right')
+    # ax[0].legend(loc='lower right')
 
     ax[1].set_xlabel('Number of Images')
     ax[1].set_ylabel('Completeness')
@@ -57,7 +57,7 @@ def plot_benchmark(ax, name, linestyle, path, threshold, data_increment):
     mean_precision = np.mean(accumulate_precision, axis=0)
     std_precision = np.std(accumulate_completeness, axis=0)
 
-    ax[0].set_xlabel('Number of Images')
+    # ax[0].set_xlabel('Number of Images')
     ax[0].set_ylabel('Precision')
     ax[0].plot(num_images, mean_precision, linestyle, label=name, markersize=4)
     ax[0].fill_between(num_images, mean_precision-std_precision, mean_precision+std_precision, alpha=0.2)
@@ -66,7 +66,7 @@ def plot_benchmark(ax, name, linestyle, path, threshold, data_increment):
     ax[0].set_yticks(np.arange(0, 1.1, step=0.5))
     ax[0].set_ylim([0.0, 1.1])
     ax[0].grid(True)
-    ax[0].legend(loc='lower right')
+    # ax[0].legend(loc='lower right')
 
     ax[1].set_xlabel('Number of Images')
     ax[1].set_ylabel('Completeness')
@@ -120,7 +120,7 @@ def plot_timed_evaluation(ax, name, linestyle, path, threshold, data_increment, 
 
 def accumulate_evaluation(path, threshold):
     figure1, ax = plt.subplots(2, 1)
-    figure1.set_size_inches((6, 4))
+    figure1.set_size_inches((6, 3.8))
     with open(path) as file:
         list = yaml.load(file, Loader=yaml.FullLoader)
         print(list)
