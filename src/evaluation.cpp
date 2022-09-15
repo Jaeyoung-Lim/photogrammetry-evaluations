@@ -44,7 +44,9 @@ Evaluation::Evaluation() {}
 std::vector<double> Evaluation::calculateErrors(grid_map::GridMap &groundtruth_map,
                                                 const grid_map::GridMap &reference_map) {
   groundtruth_map.add("elevation_difference");
+  groundtruth_map.add("valid_elevation");
   groundtruth_map["elevation_difference"].setConstant(NAN);
+  groundtruth_map["valid_elevation"].setConstant(NAN);
 
   std::vector<double> error_vector;
   for (grid_map::GridMapIterator iterator(groundtruth_map); !iterator.isPastEnd(); ++iterator) {
@@ -60,9 +62,11 @@ std::vector<double> Evaluation::calculateErrors(grid_map::GridMap &groundtruth_m
         double ref_elevation = reference_map.atPosition("elevation", cell_pos);
         double error = std::abs(ref_elevation - cell_elevation);
         groundtruth_map.at("elevation_difference", index) = error;
+        groundtruth_map.at("valid_elevation", index) = ref_elevation;
         error_vector.push_back(error);
       } else {
         groundtruth_map.at("elevation_difference", index) = NAN;
+        groundtruth_map.at("valid_elevation", index) = NAN;
         error_vector.push_back(NAN);
       }
     }
