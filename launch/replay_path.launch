@@ -3,20 +3,23 @@
     <arg name="visualization" default="true"/>
     <!-- <arg name="path" default="/mnt/dataset/Results/dc_coverage/benchmark_0"/>
     <arg name="trajectory_path" default="/mnt/dataset/Datasets/dc_coverage/0/benchamrk_raw_0.txt"/> -->
-    <!-- coverage planner -->
-    <arg name="groundtruth_mesh" default="/home/jaeyoung/dev/mesh/groundtruth_roi_meshlab.obj"/>
-    <arg name="path" default="/mnt/dataset/Results/dc_greedy/benchmark_0"/>
-    <arg name="trajectory_path" default="/mnt/dataset/Datasets/dc_greedy/0/benchamrk_raw_0.txt"/>
-
-    <!-- greedy planner -->
+    <!-- Greedy planner -->
     <!-- <arg name="groundtruth_mesh" default="/home/jaeyoung/dev/mesh/groundtruth_roi_meshlab.obj"/>
     <arg name="path" default="/mnt/dataset/Results/dc_greedy/benchmark_0"/>
-    <arg name="trajectory_path" default="/mnt/dataset/Datasets/dc_greedy/0/benchamrk_raw_0.txt"/> -->
+    <arg name="trajectory_path" default="/mnt/dataset/Datasets/dc_greedy/0/benchamrk_raw_0.txt"/>
+    <arg name="replay_time" default="160.0"/> -->
 
+    <!-- Complex Terrain coverage planner -->
+    <!-- <arg name="groundtruth_mesh" default="/home/jaeyoung/dev/mesh/groundtruth_roi_meshlab.obj"/>
+    <arg name="path" default="/mnt/dataset/Results/dc_coverage/benchmark_0"/>
+    <arg name="trajectory_path" default="/mnt/dataset/Datasets/dc_coverage/0/benchamrk_raw_0.txt"/>
+    <arg name="replay_time" default="160.0"/> -->
 
-    <!-- <arg name="groundtruth_mesh" default="/home/jaeyoung/dev/mesh/slope_scaled.obj"/> -->
-
-    <arg name="replay_time" default="160.0"/>
+    <!-- Slope Terrain coverage planner -->
+    <arg name="groundtruth_mesh" default="/home/jaeyoung/dev/mesh/slope_scaled.obj"/>
+    <arg name="path" default="/mnt/dataset/Results/slope_coverage/benchmark_0"/>
+    <arg name="trajectory_path" default="/mnt/dataset/Datasets/slope_coverage/0/benchamrk_raw_0.txt"/>
+    <arg name="replay_time" default="200.0"/>
 
     <node pkg="tf" type="static_transform_publisher" name="world_map" args="0 0 0 0 0 0 world map 10"/>
     <node pkg="photogrammetry_evaluations" type="replay_path_node" name="test_mesh" output="screen" required="true">

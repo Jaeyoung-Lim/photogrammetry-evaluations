@@ -33,6 +33,8 @@ def model_evaluation(path, threshold, increment):
         if filename.endswith('.csv'):
             index = int(filename.split('_')[2].split('.')[0])
             f = os.path.join(path, filename)
+            if index > 9:
+                continue
             if os.path.isfile(f):
                 data_df = pd.read_csv(f)
                 precision[index+1] = getPrecision(data_df, threshold)

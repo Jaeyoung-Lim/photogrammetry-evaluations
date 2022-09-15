@@ -1,3 +1,10 @@
+coverage_slope:
+  name: "Coverage"
+  path: "/mnt/dataset/Results/slope_coverage/benchmark_0"
+  timestamp_path: "/mnt/dataset/Datasets/slope_coverage/0/coverage_benchmark.txt"
+  increment: 10
+  linestyle: '-.o'
+
 ours:
   name: "Ours"
   path: "/mnt/dataset/Results/dc_greedy/benchmark_0"
@@ -10,7 +17,7 @@ ours:
 #   path: "/mnt/dataset/Results/dc_greedy/benchmark_0"
 #   increment: 10
 
-coverage_optimal:
+coverage:
   name: "Coverage"
   path: "/mnt/dataset/Results/dc_coverage/benchmark_0"
   timestamp_path: "/mnt/dataset/Datasets/dc_coverage/0/coverage_benchmark.txt"

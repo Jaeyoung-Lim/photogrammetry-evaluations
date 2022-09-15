@@ -221,7 +221,7 @@ int main(int argc, char **argv) {
           }
         }
         instance++;
-        publishViewpoint(viewpoint_pub, viewpoints, Eigen::Vector3d(0.0, 0.0, 1.0));
+        publishViewpoint(viewpoint_pub, viewpoints, Eigen::Vector3d(1.0, 0.0, 0.0));
         publishCameraPath(camera_path_pub, state_history);
       }
     }
