@@ -140,7 +140,7 @@ int main(int argc, char **argv) {
   ros::Publisher est_map_pub = nh.advertise<grid_map_msgs::GridMap>("estimated_map", 1, true);
   ros::Publisher viewpoint_pub = nh.advertise<visualization_msgs::MarkerArray>("viewpoints", 1, true);
 
-  std::string benchmark_dir_path, viewset_path, trajectory_path;
+  std::string benchmark_dir_path, viewset_path, trajectory_path, gt_path;
   double replay_time{50.0};
   bool visualization_enabled{true};
   nh_private.param<std::string>("viewset_path", viewset_path, "resources/executed_viewset.csv");
@@ -148,6 +148,14 @@ int main(int argc, char **argv) {
   nh_private.param<std::string>("benchmark_dir_path", benchmark_dir_path, "output");
   nh_private.param<bool>("visualize", visualization_enabled, true);
   nh_private.param<double>("replay_time", replay_time, replay_time);
+  nh_private.param<std::string>("groundtruth_mesh_path", gt_path, "");
+
+  grid_map::GridMap gt_map =
+      grid_map::GridMap({"roi", "elevation", "elevation_normal_x", "elevation_normal_y", "elevation_normal_z",
+                         "visibility", "geometric_prior", "normalized_prior"});
+  std::shared_ptr<ViewUtilityMap> groundtruth_map = std::make_shared<ViewUtilityMap>(gt_map);
+  double resolution = 1.0;
+  groundtruth_map->initializeFromMesh(gt_path, resolution);
 
   if (benchmark_dir_path.empty()) {
     std::cout << "Missing groundtruth mesh or the estimated mesh" << std::endl;
@@ -160,8 +168,6 @@ int main(int argc, char **argv) {
   if (!trajectory_path.empty()) {
     readTrajectory(trajectory_path, vehicle_states, candidate_viewpoints);
   }
-
-  double resolution = 1.0;
 
   if (visualization_enabled) {
     int instance{0};
@@ -193,6 +199,9 @@ int main(int argc, char **argv) {
           if (file_exists(map_path)) {
             std::shared_ptr<ViewUtilityMap> estimated_map = std::make_shared<ViewUtilityMap>(est_map);
             estimated_map->initializeFromMesh(map_path, resolution);
+
+            Evaluation::CompareMapLayer(groundtruth_map->getGridMap(), estimated_map->getGridMap());
+
             printGridmapInfo("Estimated map", estimated_map->getGridMap());
             MapPublishOnce(est_map_pub, estimated_map);
           }
@@ -201,7 +210,6 @@ int main(int argc, char **argv) {
         publishViewpoint(viewpoint_pub, viewpoints, Eigen::Vector3d(0.0, 0.0, 1.0));
         publishCameraPath(camera_path_pub, state_history);
       }
-      ros::Duration(0.2).sleep();
     }
   }
   std::cout << "Finished replay" << std::endl;

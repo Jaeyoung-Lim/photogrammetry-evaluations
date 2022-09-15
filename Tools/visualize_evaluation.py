@@ -84,6 +84,9 @@ def plot_timed_evaluation(ax, name, linestyle, path, threshold, data_increment, 
     num_images, completeness, precision = evaluate_map.model_evaluation(path, threshold, data_increment)
     print(num_images)
     print("Number of images", num_images)
+    print("Completeness", completeness)
+    print("Precision", precision)
+
     data_df = pd.read_csv(timestamped_path)
 
     #TODO: Acquire time stamps by comparing timestamp tags
@@ -103,6 +106,7 @@ def plot_timed_evaluation(ax, name, linestyle, path, threshold, data_increment, 
     ax[0].grid(True)
     ax[0].legend(loc='lower right')
     ax[0].set_xticks(np.arange(0, max(timestamp), step=40))
+    print("precision: ", precision)
 
     ax[1].set_xlabel('Time[s]')
     ax[1].set_ylabel('Completeness')
@@ -112,6 +116,7 @@ def plot_timed_evaluation(ax, name, linestyle, path, threshold, data_increment, 
     ax[1].set_yticks(np.arange(0, 1.1, step=0.5))
     ax[1].grid(True)
     ax[1].legend(loc='lower right')
+    print("completeness: ", completeness)
 
 def accumulate_evaluation(path, threshold):
     figure1, ax = plt.subplots(2, 1)

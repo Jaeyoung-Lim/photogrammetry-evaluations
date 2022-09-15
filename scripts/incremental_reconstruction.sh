@@ -74,7 +74,7 @@ while [ $(( $((${increment}*${instance})) + ${min_images})) -le $target_num_imag
     ${SCRIPT_DIR}/reconstruction.sh ${INSTANCE_DATASET_PATH} ${INSTANCE_DATASET_PATH} > ${INSTANCE_DATASET_PATH}/reconstruction.log 2>&1
     echo " - Reconstruction done log: " 
     echo " - Running model evaluation..." ${INSTANCE_DATASET_PATH}/reconstruction.log
-    ${SCRIPT_DIR}/evaluate_model.sh -g "/home/jaeyoung/dev/mesh/groundtruth_roi_meshlab.obj" \
+    ${SCRIPT_DIR}/evaluate_model.sh -g "/home/jaeyoung/dev/mesh/slope_scaled.obj" \
     -m ${INSTANCE_DATASET_PATH}/dense/meshed-delaunay.ply -p ${OUTPUT_PATH}/map_data_${instance}.csv > ${INSTANCE_DATASET_PATH}/evaluate.log 2>&1
     echo " - Model evaluation done log: " ${INSTANCE_DATASET_PATH}/evaluate.log
 

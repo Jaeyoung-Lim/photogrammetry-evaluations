@@ -1,7 +1,7 @@
 ours:
   name: "Ours"
   path: "/mnt/dataset/Results/dc_greedy/benchmark_0"
-  # timestamp_path: "/mnt/dataset/Datasets/dc_coverage/0/coverage_benchmark.txt"
+  timestamp_path: "/mnt/dataset/Datasets/dc_greedy/0/coverage_benchmark.txt"
   increment: 10
   linestyle: '-o'
 

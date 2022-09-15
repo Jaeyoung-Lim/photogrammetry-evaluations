@@ -93,7 +93,7 @@ Visualization Manager:
       Head Length: 0.20000000298023224
       Length: 0.30000001192092896
       Line Style: Billboards
-      Line Width: 1
+      Line Width: 2
       Name: Path
       Offset:
         X: 0
@@ -135,25 +135,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 1021.7545166015625
+      Distance: 1004.3170776367188
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -89.87953186035156
-        Y: -99.36848449707031
-        Z: -351.90057373046875
+        X: 48.05679702758789
+        Y: -425.95703125
+        Z: -242.70579528808594
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.6497970819473267
+      Pitch: 0.6797969937324524
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 5.639830589294434
+      Yaw: 0.581648588180542
     Saved: ~
 Window Geometry:
   Displays:
