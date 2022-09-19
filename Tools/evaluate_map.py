@@ -23,6 +23,9 @@ def getCompleteness(data_df, threshold):
     completeness = (np.abs(elevation_diff) < threshold).sum() / total
     return completeness
 
+def getRMSE(data_df):
+    return 
+
 def model_evaluation(path, threshold, increment):
     num_data = 10
     precision=np.zeros(num_data+1)

@@ -204,7 +204,7 @@ int main(int argc, char **argv) {
           grid_map::GridMap est_map;
 
           std::string map_path =
-              benchmark_dir_path + "/" + std::to_string(int(view_count / increment)-1) + "/dense/meshed-poisson.ply";
+              benchmark_dir_path + "/" + std::to_string(int(view_count / increment)-1) + "/dense/meshed-delaunay.ply";
           std::cout << "  - map_path: " << map_path << std::endl;
           // Check if file exists
           if (file_exists(map_path)) {
@@ -221,9 +221,9 @@ int main(int argc, char **argv) {
           }
         }
         instance++;
-        publishViewpoint(viewpoint_pub, viewpoints, Eigen::Vector3d(1.0, 0.0, 0.0));
-        publishCameraPath(camera_path_pub, state_history);
+        publishViewpoint(viewpoint_pub, viewpoints, Eigen::Vector3d(0.0, 1.0, 0.0));
       }
+    publishCameraPath(camera_path_pub, state_history);
     }
   }
   std::cout << "Finished replay" << std::endl;
