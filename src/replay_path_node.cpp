@@ -188,7 +188,12 @@ int main(int argc, char **argv) {
     ros::Duration(2.0).sleep();
 
     int view_count{0};
+
+    ros::Time last_segment_time = ros::Time::now();
+    double last_sample_time =vehicle_states[0].timestamp;
+
     for (auto &state : vehicle_states) {
+      double loop_start_time;
       double time = state.timestamp;
       if (time > replay_time) {
         break;
@@ -197,20 +202,20 @@ int main(int argc, char **argv) {
 
       int image_count = state.image_count;
       if (image_count > view_count) {
-        viewpoints.push_back(ViewPoint(instance, candidate_viewpoints[image_count-1].states[0].position,
-                                       candidate_viewpoints[image_count-1].states[0].attitude));
+        viewpoints.push_back(ViewPoint(instance, candidate_viewpoints[image_count - 1].states[0].position,
+                                       candidate_viewpoints[image_count - 1].states[0].attitude));
         view_count = image_count;
         if (view_count % increment == 0) {
           grid_map::GridMap est_map;
 
           std::string map_path =
-              benchmark_dir_path + "/" + std::to_string(int(view_count / increment)-1) + "/dense/meshed-delaunay.ply";
+              benchmark_dir_path + "/" + std::to_string(int(view_count / increment) - 1) + "/dense/meshed-delaunay.ply";
           std::cout << "  - map_path: " << map_path << std::endl;
           // Check if file exists
           if (file_exists(map_path)) {
             std::shared_ptr<ViewUtilityMap> estimated_map = std::make_shared<ViewUtilityMap>(est_map);
 
-            //Load Groundtruth mesh
+            // Load Groundtruth mesh
             estimated_map->initializeFromMesh(map_path, resolution);
 
             Evaluation::CompareMapLayer(groundtruth_map->getGridMap(), estimated_map->getGridMap());
@@ -223,7 +228,16 @@ int main(int argc, char **argv) {
         instance++;
         publishViewpoint(viewpoint_pub, viewpoints, Eigen::Vector3d(0.0, 1.0, 0.0));
       }
-    publishCameraPath(camera_path_pub, state_history);
+      publishCameraPath(camera_path_pub, state_history);
+      /// TODO: Wait for displaying realtime
+      ros::Time now = ros::Time::now();
+      double elapsed_time = ros::Duration(now - last_segment_time).toSec();
+      double sample_time_delta = time - last_sample_time;
+      last_sample_time = time;
+      if (elapsed_time < sample_time_delta) {
+        ros::Duration(sample_time_delta - elapsed_time).sleep();
+      }
+      last_segment_time = now;
     }
   }
   std::cout << "Finished replay" << std::endl;
