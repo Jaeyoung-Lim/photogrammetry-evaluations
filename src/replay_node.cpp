@@ -116,16 +116,36 @@ int main(int argc, char **argv) {
   ros::NodeHandle nh_private("~");
 
   ros::Publisher camera_path_pub = nh.advertise<nav_msgs::Path>("camera_path", 1, true);
+  ros::Publisher gt_map_pub = nh.advertise<grid_map_msgs::GridMap>("groundthruth_map", 1, true);
   ros::Publisher est_map_pub = nh.advertise<grid_map_msgs::GridMap>("estimated_map", 1, true);
   ros::Publisher viewpoint_pub = nh.advertise<visualization_msgs::MarkerArray>("viewpoints", 1, true);
 
-  std::string benchmark_dir_path, viewset_path;
+  std::string benchmark_dir_path, viewset_path, gt_path;
   int maximum_number_views{50};
   bool visualization_enabled{true};
+  double resolution = 1.0;
+
   nh_private.param<std::string>("viewset_path", viewset_path, "resources/executed_viewset.csv");
   nh_private.param<std::string>("benchmark_dir_path", benchmark_dir_path, "output");
+  nh_private.param<std::string>("groundtruth_mesh_path", gt_path, "");
   nh_private.param<bool>("visualize", visualization_enabled, true);
   nh_private.param<int>("maximum_number_views", maximum_number_views, maximum_number_views);
+
+  grid_map::GridMap gt_map =
+      grid_map::GridMap({"roi", "elevation", "elevation_normal_x", "elevation_normal_y", "elevation_normal_z",
+                         "visibility", "geometric_prior", "normalized_prior"});
+  std::shared_ptr<ViewUtilityMap> groundtruth_map = std::make_shared<ViewUtilityMap>(gt_map);
+  groundtruth_map->initializeFromMesh(gt_path, resolution);
+  // Offset groundtruth mesh with unreal coordinates
+  Eigen::Vector3d player_start{Eigen::Vector3d(374.47859375, -723.12984375, -286.77371094)};
+  Eigen::Vector3d adjusted_offset = player_start;
+
+  Eigen::Translation3d meshlab_translation(adjusted_offset(0), adjusted_offset(1), adjusted_offset(2));
+  Eigen::AngleAxisd meshlab_rotation(0.0 * M_PI / 180.0, Eigen::Vector3d(0.0, 0.0, 1.0));
+
+  Eigen::Isometry3d transform = meshlab_translation * meshlab_rotation;  // Apply affine transformation.
+  groundtruth_map->getGridMap() = groundtruth_map->getGridMap().getTransformedMap(
+      transform, "elevation", groundtruth_map->getGridMap().getFrameId(), true);
 
   if (benchmark_dir_path.empty()) {
     std::cout << "Missing groundtruth mesh or the estimated mesh" << std::endl;
@@ -136,8 +156,6 @@ int main(int argc, char **argv) {
   if (!viewset_path.empty()) {
     ReadViewset(viewset_path, candidate_viewpoints);
   }
-
-  double resolution = 1.0;
 
   if (visualization_enabled) {
     int instance{0};
@@ -170,7 +188,11 @@ int main(int argc, char **argv) {
         if (file_exists(map_path)) {
           std::shared_ptr<ViewUtilityMap> estimated_map = std::make_shared<ViewUtilityMap>(est_map);
           estimated_map->initializeFromMesh(map_path, resolution);
+
+          Evaluation::CompareMapLayer(groundtruth_map->getGridMap(), estimated_map->getGridMap());
+
           printGridmapInfo("Estimated map", estimated_map->getGridMap());
+          MapPublishOnce(gt_map_pub, groundtruth_map);
           MapPublishOnce(est_map_pub, estimated_map);
         }
       }
