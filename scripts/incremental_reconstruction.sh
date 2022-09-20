@@ -35,8 +35,8 @@ while getopts ":i:d:o:p:g:n:" arg; do
             ;;
     esac
 done
-
-instance=0
+min_images=10
+instance=10
 num_images=$(ls ${DATASET_PATH}/images/*.jpeg | wc -l)
 
 
