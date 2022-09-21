@@ -158,11 +158,11 @@ int main(int argc, char **argv) {
   }
 
   if (visualization_enabled) {
-    int instance{0};
+    int instance{1};
     int increment{5};
     std::vector<ViewPoint> viewpoints;
 
-    ros::Duration(2.0).sleep();
+    ros::Duration(10.0).sleep();
 
     while (true) {
       if (instance > maximum_number_views) {
@@ -175,13 +175,13 @@ int main(int argc, char **argv) {
                                        candidate_viewpoints[instance].states[0].attitude));
       }
 
-      publishViewpoint(viewpoint_pub, viewpoints, Eigen::Vector3d(0.0, 0.0, 1.0));
+      publishViewpoint(viewpoint_pub, viewpoints, Eigen::Vector3d(0.0, 1.0, 0.0));
       publishCameraPath(camera_path_pub, viewpoints);
       if (instance % increment == 0) {
         grid_map::GridMap est_map;
 
         std::string map_path =
-            benchmark_dir_path + "/" + std::to_string(int(instance / increment)) + "/dense/meshed-poisson.ply";
+            benchmark_dir_path + "/" + std::to_string(int(instance / increment) - 1) + "/dense/meshed-delaunay.ply";
         std::cout << "  - map_path: " << map_path << std::endl;
         // Check if file exists
         std::cout << "instance: " << instance << std::endl;
@@ -196,7 +196,7 @@ int main(int argc, char **argv) {
           MapPublishOnce(est_map_pub, estimated_map);
         }
       }
-      ros::Duration(0.1).sleep();
+      ros::Duration(1.0).sleep();
       instance++;
     }
   }
