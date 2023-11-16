@@ -14,7 +14,7 @@ increment:
 	./scripts/incremental_reconstruction.sh -d ${path} -o ${CURDIR}/output
 
 reconstruct:
-	./scripts/reconstruction.sh ${path} .
+	./scripts/reconstruction.sh ${path} ${CURDIR}/output
 
 register:
 	./scripts/register.sh ${path} .

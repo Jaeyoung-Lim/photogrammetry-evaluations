@@ -48,22 +48,22 @@ echo "  - reference image path: " $DATASET_PATH/camera.txt
 
 process_start_time=$(date +%s.%3N)
 
-colmap model_aligner \
-    --input_path $DATASET_PATH/sparse/0/ \
-    --output_path $DATASET_PATH/sparse/1 \
-    --ref_images_path $DATASET_PATH/camera.txt \
-    --alignment_type enu \
-    --robust_alignment 1 \
-    --ref_is_gps 0 \
-    --robust_alignment_max_error 3 \
-    --transform_path $DATASET_PATH/transform.txt
+# colmap model_aligner \
+#     --input_path $DATASET_PATH/sparse/0/ \
+#     --output_path $DATASET_PATH/sparse/1 \
+#     --ref_images_path $DATASET_PATH/camera.txt \
+#     --alignment_type enu \
+#     # --robust_alignment 1 \
+#     --ref_is_gps 0 \
+#     # --robust_alignment_max_error 3 \
+#     --transform_path $DATASET_PATH/transform.txt
 
 current_time=$(date +%s.%3N)
 echo "  - Model Aligner  elapsed time [seconds]: " $(echo "scale=3; $current_time - $process_start_time" | bc) >> $OUTPUT_PATH/timing.txt
 
 echo "============================================"
 echo "COLMAP Image_undistorter"
-echo "  - input path          : " $DATASET_PATH/sparse/1/
+echo "  - input path          : " $DATASET_PATH/sparse/0/
 echo "  - output path         : " $DATASET_PATH/dense
 
 mkdir $DATASET_PATH/dense
@@ -72,7 +72,7 @@ process_start_time=$(date +%s.%3N)
 
 colmap image_undistorter \
     --image_path $DATASET_PATH/images \
-    --input_path $DATASET_PATH/sparse/1 \
+    --input_path $DATASET_PATH/sparse/0 \
     --output_path $DATASET_PATH/dense \
     --output_type COLMAP \
     --max_image_size 2000
