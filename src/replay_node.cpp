@@ -46,7 +46,7 @@
 #include "grid_map_ros/GridMapRosConverter.hpp"
 #include "terrain_navigation/profiler.h"
 
-void ReadViewset(const std::string path, std::vector<Trajectory> &view_set) {
+void ReadViewset(const std::string path, std::vector<PathSegment> &view_set) {
   // Write data to files
   bool parse_result;
 
@@ -68,7 +68,7 @@ void ReadViewset(const std::string path, std::vector<Trajectory> &view_set) {
     state.position << std::stof(data[1]), std::stof(data[2]), std::stof(data[3]);
     state.attitude << std::stof(data[4]), std::stof(data[5]), std::stof(data[6]), std::stof(data[7]);
 
-    Trajectory view;
+    PathSegment view;
     view.states.push_back(state);
     view_set.push_back(view);
   }
@@ -132,7 +132,7 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  std::vector<Trajectory> candidate_viewpoints;
+  std::vector<PathSegment> candidate_viewpoints;
   if (!viewset_path.empty()) {
     ReadViewset(viewset_path, candidate_viewpoints);
   }
