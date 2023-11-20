@@ -10,6 +10,7 @@ Panels:
         - /GridMap1
         - /MarkerArray1
         - /Path1
+        - /MarkerArray2
       Splitter Ratio: 0.5
     Tree Height: 845
   - Class: rviz/Selection
@@ -108,6 +109,14 @@ Visualization Manager:
       Topic: /camera_path
       Unreliable: false
       Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /reconstructed_viewpoints
+      Name: MarkerArray
+      Namespaces:
+        my_namespace: true
+      Queue Size: 100
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 255; 255; 255
@@ -136,7 +145,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 2214.219482421875
+      Distance: 2218.611083984375
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1

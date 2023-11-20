@@ -53,13 +53,23 @@ colmap model_aligner \
     --output_path $DATASET_PATH/sparse/1 \
     --ref_images_path $DATASET_PATH/camera.txt \
     --alignment_type enu \
-    --alignment_max_error 3 \
+    --robust_alignment 1 \
+    --robust_alignment_max_error 3 \
     --ref_is_gps 0 \
+    --estimate_scale 1 \
+    --min_common_images 3 \
     --transform_path $DATASET_PATH/transform.txt
-    # --robust_alignment 1 \
-
 current_time=$(date +%s.%3N)
 echo "  - Model Aligner  elapsed time [seconds]: " $(echo "scale=3; $current_time - $process_start_time" | bc) >> $OUTPUT_PATH/timing.txt
+
+
+echo "============================================"
+echo "COLMAP model_converter"
+
+colmap model_converter \
+    --input_path $DATASET_PATH/sparse/1 \
+    --output_path $DATASET_PATH/sparse/1 \
+    --output_type TXT
 
 echo "============================================"
 echo "COLMAP Image_undistorter"
