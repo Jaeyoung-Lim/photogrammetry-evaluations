@@ -10,7 +10,7 @@
         <param name="dem_path" value="$(arg dem_path)"/>
         <param name="dem_color_path" value="$(arg dem_color_path)"/>
         <param name="viewset_path" value="$(arg dataset_path)"/>
-
+        <param name="output_dir_path" value="$(find photogrammetry_evaluations)/output"/>
     </node>
 
     <group if="$(arg visualization)">

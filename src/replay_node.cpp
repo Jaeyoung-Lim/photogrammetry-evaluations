@@ -42,9 +42,9 @@
 #include "adaptive_viewutility/adaptive_viewutility.h"
 #include "adaptive_viewutility/evaluation.h"
 #include "terrain_navigation/visualization.h"
+#include "terrain_navigation/data_logger.h"
 
 #include "grid_map_ros/GridMapRosConverter.hpp"
-#include "terrain_navigation/profiler.h"
 #include "photogrammetry_evaluations/geo_conversions.h"
 
 #include <filesystem>
@@ -108,7 +108,7 @@ void publishViewpoints(const ros::Publisher &viewpoint_pub, std::vector<std::sha
   viewpoint_pub.publish(viewpoint_marker_msg);
 }
 
-bool getViewPointFromImage(std::string &image_path, std::shared_ptr<ViewPoint> &viewpoint, int idx, Eigen::Vector3d map_origin) {
+bool getViewPointFromImage(std::string &image_path, std::string image_name, std::shared_ptr<ViewPoint> &viewpoint, int idx, Eigen::Vector3d map_origin) {
   GDALDataset *poSrcDS = (GDALDataset *)GDALOpen(image_path.c_str(), GA_ReadOnly);
 
   if (!poSrcDS) return false;
@@ -138,10 +138,28 @@ bool getViewPointFromImage(std::string &image_path, std::shared_ptr<ViewPoint> &
 
   viewpoint->setTime(time_seconds);
   viewpoint->setImage(image_path);
+  viewpoint->setImageName(image_name);
 
   GDALClose((GDALDatasetH)poSrcDS);
 
   return true;
+}
+
+void writePositionsToFile(std::string output_path, std::vector<std::shared_ptr<ViewPoint>> viewpoints) {
+  std::shared_ptr<DataLogger> camera_logger = std::make_shared<DataLogger>();
+  camera_logger->setKeys({"file", "X", "Y", "Z"});
+  camera_logger->setSeparator(" ");
+
+  for (auto& view : viewpoints) {
+    auto center_position = view->getCenterLocal();
+    std::unordered_map<std::string, std::any> camera_state;
+    camera_state.insert(std::pair<std::string, std::string>("file", view->getImageName()));
+    camera_state.insert(std::pair<std::string, double>("X", center_position.x()));
+    camera_state.insert(std::pair<std::string, double>("Y", center_position.y()));
+    camera_state.insert(std::pair<std::string, double>("Z", center_position.z()));
+    camera_logger->record(camera_state);
+  }
+  camera_logger->writeToFile(output_path);
 }
 
 int main(int argc, char **argv) {
@@ -154,11 +172,12 @@ int main(int argc, char **argv) {
   ros::Publisher viewpoint_pub = nh.advertise<visualization_msgs::MarkerArray>("viewpoints", 1, true);
 
   std::string viewset_path;
-  std::string dem_path, dem_color_path;
+  std::string dem_path, dem_color_path, output_dir_path;
   bool visualization_enabled{true};
   nh_private.param<std::string>("viewset_path", viewset_path, "");
   nh_private.param<std::string>("dem_path", dem_path, "");
   nh_private.param<std::string>("dem_color_path", dem_color_path, "");
+  nh_private.param<std::string>("output_dir_path", output_dir_path, "");
   nh_private.param<bool>("visualize", visualization_enabled, true);
 
   auto terrain_map = std::make_shared<GridMapGeo>();
@@ -177,9 +196,11 @@ int main(int argc, char **argv) {
   for (const auto &dirEntry : std::filesystem::recursive_directory_iterator(viewset_path)) {
     if (dirEntry.path().extension() == ".JPG") {
       std::string image_path = dirEntry.path().string();
+      std::string image_name = dirEntry.path().filename();
       std::cout << "Reading file : " << dirEntry.path().string() << std::endl;
+      std::cout << "  - File name: " << image_name << std::endl;
       std::shared_ptr<ViewPoint> viewpoint;
-      if (getViewPointFromImage(image_path, viewpoint, idx++, map_origin)) {
+      if (getViewPointFromImage(image_path, image_name, viewpoint, idx++, map_origin)) {
         viewpoint_list.push_back(viewpoint);
       }
     }
@@ -187,17 +208,19 @@ int main(int argc, char **argv) {
 
   std::cout << "Viewpoint size: " << viewpoint_list.size() << std::endl;
 
-
   publishViewpoints(viewpoint_pub, viewpoint_list, Eigen::Vector3d(0.0, 0.0, 1.0));
 
   grid_map_msgs::GridMap msg;
   grid_map::GridMapRosConverter::toMessage(terrain_map->getGridMap(), msg);
   terrain_map_pub.publish(msg);
 
-  /// TODO: Align mesh in colmap
-  /// TODO: Parse mesh file from COLMAP
 
+  writePositionsToFile(output_dir_path + "/camera.txt", viewpoint_list);
+
+  /// TODO: Visualize dense reconstructed mesh from COLMAP
   /// TODO: Compare mesh file with DEM
+
+  /// TODO: Compare view utility metrics
 
   ros::spin();
   return 0;
