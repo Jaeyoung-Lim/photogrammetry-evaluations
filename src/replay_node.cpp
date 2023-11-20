@@ -45,6 +45,9 @@
 
 #include "grid_map_ros/GridMapRosConverter.hpp"
 #include "terrain_navigation/profiler.h"
+#include "photogrammetry_evaluations/geo_conversions.h"
+
+#include <filesystem>
 
 void ReadViewset(const std::string path, std::vector<PathSegment> &view_set) {
   // Write data to files
@@ -90,13 +93,13 @@ void publishCameraPath(const ros::Publisher pub, const std::vector<ViewPoint> vi
   pub.publish(msg);
 }
 
-void publishViewpoint(const ros::Publisher &viewpoint_pub, std::vector<ViewPoint> viewpoints,
+void publishViewpoints(const ros::Publisher &viewpoint_pub, std::vector<std::shared_ptr<ViewPoint>> viewpoints,
                       const Eigen::Vector3d color) {
   std::vector<visualization_msgs::Marker> viewpoint_vector;
 
   int i = 0;
-  for (auto viewpoint : viewpoints) {
-    viewpoint_vector.insert(viewpoint_vector.begin(), Viewpoint2MarkerMsg(i, viewpoint, color));
+  for (std::shared_ptr<ViewPoint> viewpoint : viewpoints) {
+    viewpoint_vector.insert(viewpoint_vector.begin(), Viewpoint2MarkerMsg(i, *viewpoint, color));
     i++;
   }
 
@@ -105,9 +108,40 @@ void publishViewpoint(const ros::Publisher &viewpoint_pub, std::vector<ViewPoint
   viewpoint_pub.publish(viewpoint_marker_msg);
 }
 
-inline bool file_exists(const std::string &name) {
-  std::ifstream f(name.c_str());
-  return f.good();
+bool getViewPointFromImage(std::string &image_path, std::shared_ptr<ViewPoint> &viewpoint, int idx, Eigen::Vector3d map_origin) {
+  GDALDataset *poSrcDS = (GDALDataset *)GDALOpen(image_path.c_str(), GA_ReadOnly);
+
+  if (!poSrcDS) return false;
+
+  std::string exif_gps_altitude = poSrcDS->GetMetadataItem("EXIF_GPSAltitude");
+  std::string exif_gps_latitude = poSrcDS->GetMetadataItem("EXIF_GPSLatitude");
+  std::string exif_gps_longitude = poSrcDS->GetMetadataItem("EXIF_GPSLongitude");
+  std::string exif_gps_track = poSrcDS->GetMetadataItem("EXIF_GPSTrack");
+
+  double viewpoint_altitude = StringToGeoReference(exif_gps_altitude);
+  double viewpoint_latitude = StringToGeoReference(exif_gps_latitude);
+  double viewpoint_longitude = StringToGeoReference(exif_gps_longitude);
+  std::cout << "latitude: " << viewpoint_latitude << " longitude: " << viewpoint_longitude
+            << " altitude: " << viewpoint_altitude << std::endl;
+  
+  double time_seconds = GetTimeInSeconds(std::string(poSrcDS->GetMetadataItem("EXIF_DateTime")));
+  
+  ///TODO: Set viewpoint local position from geo reference
+  Eigen::Vector3d lv03_viewpoint_position;
+  GeoConversions::forward(viewpoint_latitude, viewpoint_longitude, viewpoint_altitude, lv03_viewpoint_position.x(), lv03_viewpoint_position.y(), lv03_viewpoint_position.z());
+
+  Eigen::Vector3d local_position = lv03_viewpoint_position - map_origin;
+
+  std::cout << "Local position: " << local_position.transpose() << std::endl;
+  Eigen::Vector4d local_attitude{1.0, 0.0, 0.0, 0.0};
+  viewpoint = std::make_shared<ViewPoint>(idx++, local_position, local_attitude);
+
+  viewpoint->setTime(time_seconds);
+  viewpoint->setImage(image_path);
+
+  GDALClose((GDALDatasetH)poSrcDS);
+
+  return true;
 }
 
 int main(int argc, char **argv) {
@@ -116,68 +150,55 @@ int main(int argc, char **argv) {
   ros::NodeHandle nh_private("~");
 
   ros::Publisher camera_path_pub = nh.advertise<nav_msgs::Path>("camera_path", 1, true);
-  ros::Publisher est_map_pub = nh.advertise<grid_map_msgs::GridMap>("estimated_map", 1, true);
+  ros::Publisher terrain_map_pub = nh.advertise<grid_map_msgs::GridMap>("terrain", 1, true);
   ros::Publisher viewpoint_pub = nh.advertise<visualization_msgs::MarkerArray>("viewpoints", 1, true);
 
-  std::string benchmark_dir_path, viewset_path;
-  int maximum_number_views{50};
+  std::string viewset_path;
+  std::string dem_path, dem_color_path;
   bool visualization_enabled{true};
-  nh_private.param<std::string>("viewset_path", viewset_path, "resources/executed_viewset.csv");
-  nh_private.param<std::string>("benchmark_dir_path", benchmark_dir_path, "output");
+  nh_private.param<std::string>("viewset_path", viewset_path, "");
+  nh_private.param<std::string>("dem_path", dem_path, "");
+  nh_private.param<std::string>("dem_color_path", dem_color_path, "");
   nh_private.param<bool>("visualize", visualization_enabled, true);
-  nh_private.param<int>("maximum_number_views", maximum_number_views, maximum_number_views);
 
-  if (benchmark_dir_path.empty()) {
-    std::cout << "Missing groundtruth mesh or the estimated mesh" << std::endl;
-    return 1;
-  }
+  auto terrain_map = std::make_shared<GridMapGeo>();
+  terrain_map->Load(dem_path, false, dem_color_path);
 
-  std::vector<PathSegment> candidate_viewpoints;
-  if (!viewset_path.empty()) {
-    ReadViewset(viewset_path, candidate_viewpoints);
-  }
+  /// TODO: Parse exif tags from the images and visualize above DEM
+  ESPG map_coordinate;
+  Eigen::Vector3d map_origin;
+  terrain_map->getGlobalOrigin(map_coordinate, map_origin);
 
-  double resolution = 1.0;
+  std::cout << "Map origin: " << map_origin << std::endl;
 
-  if (visualization_enabled) {
-    int instance{0};
-    int increment{5};
-    std::vector<ViewPoint> viewpoints;
-
-    ros::Duration(2.0).sleep();
-
-    while (true) {
-      if (instance > maximum_number_views) {
-          break;
+  /// Iterate through image files
+  std::vector<std::shared_ptr<ViewPoint>> viewpoint_list;
+  int idx{0};
+  for (const auto &dirEntry : std::filesystem::recursive_directory_iterator(viewset_path)) {
+    if (dirEntry.path().extension() == ".JPG") {
+      std::string image_path = dirEntry.path().string();
+      std::cout << "Reading file : " << dirEntry.path().string() << std::endl;
+      std::shared_ptr<ViewPoint> viewpoint;
+      if (getViewPointFromImage(image_path, viewpoint, idx++, map_origin)) {
+        viewpoint_list.push_back(viewpoint);
       }
-      std::cout << "Publishing map!" << std::endl;
-      /// TODO: Load viewpoint progress
-      if (instance < candidate_viewpoints.size()) {
-        viewpoints.push_back(ViewPoint(instance, candidate_viewpoints[instance].states[0].position,
-                                       candidate_viewpoints[instance].states[0].attitude));
-      }
-
-      publishViewpoint(viewpoint_pub, viewpoints, Eigen::Vector3d(0.0, 0.0, 1.0));
-      publishCameraPath(camera_path_pub, viewpoints);
-      if (instance % increment == 0) {
-        grid_map::GridMap est_map;
-
-        std::string map_path =
-            benchmark_dir_path + "/" + std::to_string(int(instance / increment)) + "/dense/meshed-poisson.ply";
-        std::cout << "  - map_path: " << map_path << std::endl;
-        // Check if file exists
-        std::cout << "instance: " << instance << std::endl;
-        if (file_exists(map_path)) {
-          std::shared_ptr<ViewUtilityMap> estimated_map = std::make_shared<ViewUtilityMap>(est_map);
-          estimated_map->initializeFromMesh(map_path, resolution);
-          printGridmapInfo("Estimated map", estimated_map->getGridMap());
-          MapPublishOnce(est_map_pub, estimated_map);
-        }
-      }
-      ros::Duration(0.1).sleep();
-      instance++;
     }
   }
+
+  std::cout << "Viewpoint size: " << viewpoint_list.size() << std::endl;
+
+
+  publishViewpoints(viewpoint_pub, viewpoint_list, Eigen::Vector3d(0.0, 0.0, 1.0));
+
+  grid_map_msgs::GridMap msg;
+  grid_map::GridMapRosConverter::toMessage(terrain_map->getGridMap(), msg);
+  terrain_map_pub.publish(msg);
+
+  /// TODO: Align mesh in colmap
+  /// TODO: Parse mesh file from COLMAP
+
+  /// TODO: Compare mesh file with DEM
+
   ros::spin();
   return 0;
 }
