@@ -1,0 +1,36 @@
+# nbvgreedy:
+#   name: "Ours"
+#   path: "/mnt/dataset/Results/test/benchmark_0/poisson"
+#   increment: 5
+#   linestyle: '-oc'
+
+# poission:
+#   name: "poission"
+#   path: "/mnt/dataset/Results/nbv_benchmark/benchmark_0"
+#   increment: 5
+#   linestyle: '-or'
+
+# random:
+#   name: "Random"
+#   benchmark_path: "/mnt/dataset/Results/nbv_random"
+#   increment: 5
+#   linestyle: '-or'
+
+roberts:
+  name: "Roberts [24]"
+  path: "/mnt/dataset/Results/nbv_roberts/benchmark_0"
+  increment: 5
+  linestyle: '-oc'
+
+roberts-poisson:
+  name: "Poisson"
+  path: "/mnt/dataset/Results/nbv_roberts/benchmark_0/poisson"
+  increment: 5
+  linestyle: '-oy'
+
+
+# exploration:
+#   name: "Exploration"
+#   path: "/mnt/dataset/Results/nbv_exploration/benchmark_0"
+#   increment: 5
+#   linestyle: '-om'

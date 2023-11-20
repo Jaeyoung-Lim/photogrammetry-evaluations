@@ -1,15 +1,33 @@
+
 ours:
   name: "Ours"
   path: "/mnt/dataset/Results/dc_greedy/benchmark_0"
+  timestamp_path: "/mnt/dataset/Datasets/dc_greedy/0/coverage_benchmark.txt"
   increment: 10
+  linestyle: '-oc'
+
+ours_slope:
+  name: "Ours (Slope)"
+  path: "/mnt/dataset/Results/slope_greedy/benchmark_0"
+  timestamp_path: "/mnt/dataset/Datasets/slope_greedy/0/coverage_benchmark.txt"
+  increment: 10
+  linestyle: '--oc'
+
+coverage:
+  name: "Coverage"
+  path: "/mnt/dataset/Results/dc_coverage/benchmark_0"
+  timestamp_path: "/mnt/dataset/Datasets/dc_coverage/0/coverage_benchmark.txt"
+  increment: 10
+  linestyle: '-or'
+
+coverage_slope:
+  name: "Coverage (Slope)"
+  path: "/mnt/dataset/Results/slope_coverage/benchmark_0"
+  timestamp_path: "/mnt/dataset/Datasets/slope_coverage/0/coverage_benchmark.txt"
+  increment: 10
+  linestyle: '--or'
 
 # exploration:
 #   name: "Exploration"
 #   path: "/mnt/dataset/Results/dc_greedy/benchmark_0"
 #   increment: 10
-
-coverage_optimal:
-  name: "Coverage"
-  path: "/mnt/dataset/Results/dc_coverage/benchmark_0"
-  timestamp_path: "/mnt/dataset/Datasets/dc_coverage/0/coverage_benchmark.txt"
-  increment: 5

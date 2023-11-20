@@ -1,15 +1,45 @@
 <launch>
 <!-- Compare mesh between two meshes -->
     <arg name="visualization" default="true"/>
-    <arg name="path" default="/mnt/dataset/Results/nbv_greedy/benchmark_0"/>
+    <arg name="groundtruth_mesh" default="/home/jaeyoung/dev/mesh/groundtruth_roi_meshlab.obj"/>
+
+    <!-- NBV Greedy -->
+    <!-- <arg name="path" default="/mnt/dataset/Results/nbv_greedy/benchmark_0"/>
     <arg name="dataset_path" default="/mnt/dataset/Datasets/nbv_greedy/0/executed_viewset.csv"/>
+    <arg name="replay_time" default="400.0"/> -->
+
+    <!-- NBV Exploration -->
+    <!-- <arg name="path" default="/mnt/dataset/Results/nbv_exploration/benchmark_0"/>
+    <arg name="dataset_path" default="/mnt/dataset/Datasets/nbv_exploration/0/executed_viewset.csv"/>
+    <arg name="replay_time" default="400.0"/> -->
+
+    <!-- NBV Roberts -->
+    <!-- <arg name="path" default="/mnt/dataset/Results/nbv_roberts/benchmark_0"/>
+    <arg name="dataset_path" default="/mnt/dataset/Datasets/nbv_roberts/0/executed_viewset.csv"/>
+    <arg name="replay_time" default="400.0"/> -->
+
+    <!-- NBV Random -->
+    <!-- <arg name="path" default="/mnt/dataset/Results/nbv_random/benchmark_0"/>
+    <arg name="dataset_path" default="/mnt/dataset/Datasets/nbv_random/0/executed_viewset.csv"/>
+    <arg name="replay_time" default="400.0"/> -->
+
+    <!-- NBV Greedy 360 X 270 -->
+    <!-- <arg name="path" default="/mnt/dataset/Results/nbv_greedy_360270/benchmark_0"/>
+    <arg name="dataset_path" default="/mnt/dataset/Datasets/nbv_greedy_360270/0/executed_viewset.csv"/>
+    <arg name="replay_time" default="400.0"/> -->
+
+    <!-- NBV Greedy 720 X 540 -->
+    <arg name="path" default="/mnt/dataset/Results/nbv_greedy_720540/benchmark_0"/>
+    <arg name="dataset_path" default="/mnt/dataset/Datasets/nbv_greedy_720540/0/executed_viewset.csv"/>
+    <arg name="replay_time" default="400.0"/>
 
     <node pkg="tf" type="static_transform_publisher" name="world_map" args="0 0 0 0 0 0 world map 10"/>
     <node pkg="photogrammetry_evaluations" type="replay_node" name="test_mesh" output="screen" required="true">
         <param name="benchmark_dir_path" value="$(arg path)"/>
         <param name="viewset_path" value="$(arg dataset_path)"/>
+        <param name="groundtruth_mesh_path" value="$(arg groundtruth_mesh)"/>
         <param name="visualize" value="$(arg visualization)"/>
-        <param name="maximum_number_views" value="25"/>
+        <param name="maximum_number_views" value="50"/>
         <param name="output_path" value="$(arg path)"/>
     </node>
 

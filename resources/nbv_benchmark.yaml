@@ -2,18 +2,22 @@ nbvgreedy:
   name: "Ours"
   path: "/mnt/dataset/Results/nbv_greedy/benchmark_0"
   increment: 5
+  linestyle: '-oc'
 
 random:
-  name: "Random"
-  path: "/mnt/dataset/Results/nbv_random/benchmark_0"
+  name: "Random(mean)"
+  benchmark_path: "/mnt/dataset/Results/nbv_random"
   increment: 5
+  linestyle: '--or'
 
 roberts:
-  name: "Roberts [24]"
+  name: "Spherical"
   path: "/mnt/dataset/Results/nbv_roberts/benchmark_0"
   increment: 5
+  linestyle: '-oy'
 
 exploration:
   name: "Exploration"
   path: "/mnt/dataset/Results/nbv_exploration/benchmark_0"
   increment: 5
+  linestyle: '-om'

@@ -46,7 +46,15 @@
 #include "grid_map_ros/GridMapRosConverter.hpp"
 #include "terrain_navigation/profiler.h"
 
-void ReadViewset(const std::string path, std::vector<PathSegment> &view_set) {
+struct VehicleState {
+  double timestamp{0};
+  int image_count{0};
+  Eigen::Vector3d position{Eigen::Vector3d::Zero()};
+  Eigen::Vector4d attitude{Eigen::Vector4d::Zero()};
+};
+
+void readTrajectory(const std::string path, std::vector<VehicleState> &vehicle_states,
+                    std::vector<Trajectory> &view_set) {
   // Write data to files
   bool parse_result;
 
@@ -54,6 +62,7 @@ void ReadViewset(const std::string path, std::vector<PathSegment> &view_set) {
   std::string str;
 
   // Look for the image file name in the path
+  int view_count{0};
   while (getline(file, str)) {
     std::stringstream ss(str);
     std::vector<std::string> data;
@@ -61,25 +70,37 @@ void ReadViewset(const std::string path, std::vector<PathSegment> &view_set) {
     while (getline(ss, cc, ',')) {
       data.push_back(cc);
     }
-    // #   ID, x, y, z, qw, qx, qy, qz
-    ss >> data[0] >> data[1] >> data[2] >> data[3] >> data[4] >> data[5] >> data[6] >> data[7];
-    if (data[0] == "id") continue;
-    State state;
-    state.position << std::stof(data[1]), std::stof(data[2]), std::stof(data[3]);
-    state.attitude << std::stof(data[4]), std::stof(data[5]), std::stof(data[6]), std::stof(data[7]);
-
-    PathSegment view;
-    view.states.push_back(state);
-    view_set.push_back(view);
+    // #  "timestamp", "coverage", "quality", "image_count", "position_x", "position_y", "position_z",
+    //    "attitude_w", "attitude_x", "attitude_y", "attitude_z"
+    ss >> data[0] >> data[1] >> data[2] >> data[3] >> data[4] >> data[5] >> data[6] >> data[7] >> data[8] >> data[9] >>
+        data[10];
+    int image_count = std::stoi(data[3]);
+    Eigen::Vector3d vehicle_position(std::stof(data[4]), std::stof(data[5]), std::stof(data[6]));
+    Eigen::Vector4d vehicle_attitude(std::stof(data[7]), std::stof(data[8]), std::stof(data[9]), std::stof(data[10]));
+    VehicleState vehicle_state;
+    vehicle_state.timestamp = std::stof(data[0]);
+    vehicle_state.image_count = image_count;
+    vehicle_state.position = vehicle_position;
+    vehicle_state.attitude = vehicle_attitude;
+    vehicle_states.push_back(vehicle_state);
+    if (image_count > view_count) {
+      State state;
+      state.position = vehicle_position;
+      state.attitude = vehicle_attitude;
+      Trajectory view;
+      view.states.push_back(state);
+      view_set.push_back(view);
+      view_count = image_count;
+    }
   }
   return;
 }
 
-void publishCameraPath(const ros::Publisher pub, const std::vector<ViewPoint> viewpoints) {
+void publishCameraPath(const ros::Publisher pub, std::vector<VehicleState> &vehicle_states) {
   std::vector<geometry_msgs::PoseStamped> posestampedhistory_vector;
-  for (auto viewpoint : viewpoints) {
+  for (auto viewpoint : vehicle_states) {
     posestampedhistory_vector.insert(posestampedhistory_vector.begin(),
-                                     vector3d2PoseStampedMsg(viewpoint.getCenterLocal(), viewpoint.getOrientation()));
+                                     vector3d2PoseStampedMsg(viewpoint.position, viewpoint.attitude));
   }
 
   nav_msgs::Path msg;
@@ -120,21 +141,21 @@ int main(int argc, char **argv) {
   ros::Publisher est_map_pub = nh.advertise<grid_map_msgs::GridMap>("estimated_map", 1, true);
   ros::Publisher viewpoint_pub = nh.advertise<visualization_msgs::MarkerArray>("viewpoints", 1, true);
 
-  std::string benchmark_dir_path, viewset_path, gt_path;
-  int maximum_number_views{50};
+  std::string benchmark_dir_path, viewset_path, trajectory_path, gt_path;
+  double replay_time{50.0};
   bool visualization_enabled{true};
-  double resolution = 1.0;
-
   nh_private.param<std::string>("viewset_path", viewset_path, "resources/executed_viewset.csv");
+  nh_private.param<std::string>("trajectory_path", trajectory_path, "resources/executed_viewset.csv");
   nh_private.param<std::string>("benchmark_dir_path", benchmark_dir_path, "output");
-  nh_private.param<std::string>("groundtruth_mesh_path", gt_path, "");
   nh_private.param<bool>("visualize", visualization_enabled, true);
-  nh_private.param<int>("maximum_number_views", maximum_number_views, maximum_number_views);
+  nh_private.param<double>("replay_time", replay_time, replay_time);
+  nh_private.param<std::string>("groundtruth_mesh_path", gt_path, "");
 
   grid_map::GridMap gt_map =
       grid_map::GridMap({"roi", "elevation", "elevation_normal_x", "elevation_normal_y", "elevation_normal_z",
                          "visibility", "geometric_prior", "normalized_prior"});
   std::shared_ptr<ViewUtilityMap> groundtruth_map = std::make_shared<ViewUtilityMap>(gt_map);
+  double resolution = 1.0;
   groundtruth_map->initializeFromMesh(gt_path, resolution);
   // Offset groundtruth mesh with unreal coordinates
   Eigen::Vector3d player_start{Eigen::Vector3d(374.47859375, -723.12984375, -286.77371094)};
@@ -152,54 +173,74 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  std::vector<PathSegment> candidate_viewpoints;
-  if (!viewset_path.empty()) {
-    ReadViewset(viewset_path, candidate_viewpoints);
+  std::vector<VehicleState> vehicle_states;
+  std::vector<VehicleState> state_history;
+  std::vector<Trajectory> candidate_viewpoints;
+  if (!trajectory_path.empty()) {
+    readTrajectory(trajectory_path, vehicle_states, candidate_viewpoints);
   }
 
   if (visualization_enabled) {
-    int instance{1};
-    int increment{5};
+    int instance{0};
+    int increment{10};
     std::vector<ViewPoint> viewpoints;
 
-    ros::Duration(10.0).sleep();
+    ros::Duration(2.0).sleep();
 
-    while (true) {
-      if (instance > maximum_number_views) {
+    int view_count{0};
+
+    ros::Time last_segment_time = ros::Time::now();
+    double last_sample_time =vehicle_states[0].timestamp;
+
+    for (auto &state : vehicle_states) {
+      double loop_start_time;
+      double time = state.timestamp;
+      if (time > replay_time) {
         break;
       }
-      std::cout << "Publishing map!" << std::endl;
-      /// TODO: Load viewpoint progress
-      if (instance < candidate_viewpoints.size()) {
-        viewpoints.push_back(ViewPoint(instance, candidate_viewpoints[instance].states[0].position,
-                                       candidate_viewpoints[instance].states[0].attitude));
-      }
+      state_history.push_back(state);
 
-      publishViewpoint(viewpoint_pub, viewpoints, Eigen::Vector3d(0.0, 1.0, 0.0));
-      publishCameraPath(camera_path_pub, viewpoints);
-      if (instance % increment == 0) {
-        grid_map::GridMap est_map;
+      int image_count = state.image_count;
+      if (image_count > view_count) {
+        viewpoints.push_back(ViewPoint(instance, candidate_viewpoints[image_count - 1].states[0].position,
+                                       candidate_viewpoints[image_count - 1].states[0].attitude));
+        view_count = image_count;
+        if (view_count % increment == 0) {
+          grid_map::GridMap est_map;
 
-        std::string map_path =
-            benchmark_dir_path + "/" + std::to_string(int(instance / increment) - 1) + "/dense/meshed-delaunay.ply";
-        std::cout << "  - map_path: " << map_path << std::endl;
-        // Check if file exists
-        std::cout << "instance: " << instance << std::endl;
-        if (file_exists(map_path)) {
-          std::shared_ptr<ViewUtilityMap> estimated_map = std::make_shared<ViewUtilityMap>(est_map);
-          estimated_map->initializeFromMesh(map_path, resolution);
+          std::string map_path =
+              benchmark_dir_path + "/" + std::to_string(int(view_count / increment) - 1) + "/dense/meshed-delaunay.ply";
+          std::cout << "  - map_path: " << map_path << std::endl;
+          // Check if file exists
+          if (file_exists(map_path)) {
+            std::shared_ptr<ViewUtilityMap> estimated_map = std::make_shared<ViewUtilityMap>(est_map);
 
-          Evaluation::CompareMapLayer(groundtruth_map->getGridMap(), estimated_map->getGridMap());
+            // Load Groundtruth mesh
+            estimated_map->initializeFromMesh(map_path, resolution);
 
-          printGridmapInfo("Estimated map", estimated_map->getGridMap());
-          MapPublishOnce(gt_map_pub, groundtruth_map);
-          MapPublishOnce(est_map_pub, estimated_map);
+            Evaluation::CompareMapLayer(groundtruth_map->getGridMap(), estimated_map->getGridMap());
+
+            printGridmapInfo("Estimated map", estimated_map->getGridMap());
+            MapPublishOnce(est_map_pub, estimated_map);
+            MapPublishOnce(gt_map_pub, groundtruth_map);
+          }
         }
+        instance++;
+        publishViewpoint(viewpoint_pub, viewpoints, Eigen::Vector3d(0.0, 1.0, 0.0));
       }
-      ros::Duration(1.0).sleep();
-      instance++;
+      publishCameraPath(camera_path_pub, state_history);
+      /// TODO: Wait for displaying realtime
+      ros::Time now = ros::Time::now();
+      double elapsed_time = ros::Duration(now - last_segment_time).toSec();
+      double sample_time_delta = time - last_sample_time;
+      last_sample_time = time;
+      if (elapsed_time < sample_time_delta) {
+        ros::Duration(sample_time_delta - elapsed_time).sleep();
+      }
+      last_segment_time = now;
     }
   }
+  std::cout << "Finished replay" << std::endl;
   ros::spin();
   return 0;
 }
