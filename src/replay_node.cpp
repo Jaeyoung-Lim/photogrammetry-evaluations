@@ -41,10 +41,10 @@
 
 #include "adaptive_viewutility/adaptive_viewutility.h"
 #include "adaptive_viewutility/evaluation.h"
+#include "terrain_navigation/data_logger.h"
 #include "terrain_navigation/visualization.h"
 
 #include "grid_map_ros/GridMapRosConverter.hpp"
-#include "terrain_navigation/profiler.h"
 #include "photogrammetry_evaluations/geo_conversions.h"
 
 #include <filesystem>
@@ -94,7 +94,7 @@ void publishCameraPath(const ros::Publisher pub, const std::vector<ViewPoint> vi
 }
 
 void publishViewpoints(const ros::Publisher &viewpoint_pub, std::vector<std::shared_ptr<ViewPoint>> viewpoints,
-                      const Eigen::Vector3d color) {
+                       const Eigen::Vector3d color) {
   std::vector<visualization_msgs::Marker> viewpoint_vector;
 
   int i = 0;
@@ -108,7 +108,8 @@ void publishViewpoints(const ros::Publisher &viewpoint_pub, std::vector<std::sha
   viewpoint_pub.publish(viewpoint_marker_msg);
 }
 
-bool getViewPointFromImage(std::string &image_path, std::shared_ptr<ViewPoint> &viewpoint, int idx, Eigen::Vector3d map_origin) {
+bool getViewPointFromImage(std::string &image_path, std::string image_name, std::shared_ptr<ViewPoint> &viewpoint,
+                           int idx, Eigen::Vector3d map_origin) {
   GDALDataset *poSrcDS = (GDALDataset *)GDALOpen(image_path.c_str(), GA_ReadOnly);
 
   if (!poSrcDS) return false;
@@ -123,23 +124,108 @@ bool getViewPointFromImage(std::string &image_path, std::shared_ptr<ViewPoint> &
   double viewpoint_longitude = StringToGeoReference(exif_gps_longitude);
   std::cout << "latitude: " << viewpoint_latitude << " longitude: " << viewpoint_longitude
             << " altitude: " << viewpoint_altitude << std::endl;
-  
+
   double time_seconds = GetTimeInSeconds(std::string(poSrcDS->GetMetadataItem("EXIF_DateTime")));
-  
-  ///TODO: Set viewpoint local position from geo reference
+
+  /// TODO: Set viewpoint local position from geo reference
   Eigen::Vector3d lv03_viewpoint_position;
-  GeoConversions::forward(viewpoint_latitude, viewpoint_longitude, viewpoint_altitude, lv03_viewpoint_position.x(), lv03_viewpoint_position.y(), lv03_viewpoint_position.z());
+  GeoConversions::forward(viewpoint_latitude, viewpoint_longitude, viewpoint_altitude, lv03_viewpoint_position.x(),
+                          lv03_viewpoint_position.y(), lv03_viewpoint_position.z());
 
   Eigen::Vector3d local_position = lv03_viewpoint_position - map_origin;
 
   std::cout << "Local position: " << local_position.transpose() << std::endl;
   Eigen::Vector4d local_attitude{1.0, 0.0, 0.0, 0.0};
-  viewpoint = std::make_shared<ViewPoint>(idx++, local_position, local_attitude);
+  viewpoint = std::make_shared<ViewPoint>(idx, local_position, local_attitude);
 
   viewpoint->setTime(time_seconds);
   viewpoint->setImage(image_path);
+  viewpoint->setImageName(image_name);
 
   GDALClose((GDALDatasetH)poSrcDS);
+
+  return true;
+}
+
+void writePositionsToFile(std::string output_path, std::vector<std::shared_ptr<ViewPoint>> viewpoints) {
+  std::shared_ptr<DataLogger> camera_logger = std::make_shared<DataLogger>();
+  camera_logger->setKeys({"file", "X", "Y", "Z"});
+  camera_logger->setSeparator(" ");
+
+  for (auto &view : viewpoints) {
+    auto center_position = view->getCenterLocal();
+    std::unordered_map<std::string, std::any> camera_state;
+    camera_state.insert(std::pair<std::string, std::string>("file", view->getImageName()));
+    camera_state.insert(std::pair<std::string, double>("X", center_position.x()));
+    camera_state.insert(std::pair<std::string, double>("Y", center_position.y()));
+    camera_state.insert(std::pair<std::string, double>("Z", center_position.z()));
+    camera_logger->record(camera_state);
+  }
+  camera_logger->writeToFile(output_path);
+}
+
+bool parsePoseFromText(std::string text_path, std::string image_file, Eigen::Vector3d &position,
+                       Eigen::Vector4d &attitude) {
+  bool parse_result;
+
+  std::ifstream file(text_path);
+  std::string str;
+
+  // Look for the image file name in the path
+  while (getline(file, str)) {
+    if (str.find(image_file) != std::string::npos) {
+      std::stringstream ss(str);
+      std::vector<std::string> camera_pose;
+      camera_pose.resize(9);
+      // #   IMAGE_ID, QW, QX, QY, QZ, TX, TY, TZ, CAMERA_ID, NAME
+      ss >> camera_pose[0] >> camera_pose[1] >> camera_pose[2] >> camera_pose[3] >> camera_pose[4] >> camera_pose[5] >>
+          camera_pose[6] >> camera_pose[7] >> camera_pose[8];
+      attitude << std::stof(camera_pose[1]), std::stof(camera_pose[2]), std::stof(camera_pose[3]),
+          std::stof(camera_pose[4]);
+      position << std::stof(camera_pose[5]), std::stof(camera_pose[6]), std::stof(camera_pose[7]);
+      return true;
+    }
+  }
+  return false;
+}
+
+Eigen::Matrix3d quat2RotMatrix(const Eigen::Vector4d &q) {
+  Eigen::Matrix3d rotmat;
+  rotmat << q(0) * q(0) + q(1) * q(1) - q(2) * q(2) - q(3) * q(3), 2 * q(1) * q(2) - 2 * q(0) * q(3),
+      2 * q(0) * q(2) + 2 * q(1) * q(3),
+
+      2 * q(0) * q(3) + 2 * q(1) * q(2), q(0) * q(0) - q(1) * q(1) + q(2) * q(2) - q(3) * q(3),
+      2 * q(2) * q(3) - 2 * q(0) * q(1),
+
+      2 * q(1) * q(3) - 2 * q(0) * q(2), 2 * q(0) * q(1) + 2 * q(2) * q(3),
+      q(0) * q(0) - q(1) * q(1) - q(2) * q(2) + q(3) * q(3);
+  return rotmat;
+}
+
+bool getViewPointFromCOLMAP(std::string path, std::vector<std::shared_ptr<ViewPoint>> &reference,
+                            std::vector<std::shared_ptr<ViewPoint>> &viewpoints) {
+  int idx{0};
+  /// TODO: Parse camera views from text file
+
+  std::cout << "Reading camera file: " << path << std::endl;
+
+  for (auto reference_view : reference) {
+    std::string image_name = reference_view->getImageName();
+    Eigen::Vector3d view_position;
+    Eigen::Vector4d view_attitude;
+    if (parsePoseFromText(path, image_name, view_position, view_attitude)) {
+      auto R = quat2RotMatrix(view_attitude);
+      Eigen::Vector3d local_position = -R.transpose() * view_position;
+      Eigen::Vector4d local_attitude = view_attitude;
+      auto viewpoint = std::make_shared<ViewPoint>(idx++, local_position, local_attitude);
+      std::cout << "  - Geotagged: " << image_name << std::endl;
+      std::cout << "    - Local position: " << reference_view->getCenterLocal().transpose() << std::endl;
+      std::cout << "  - Reconstructed: " << std::endl;
+      std::cout << "    - Local position: " << local_position.transpose() << std::endl;
+      viewpoint->setImageName(image_name);
+      viewpoints.push_back(viewpoint);
+    }
+  }
 
   return true;
 }
@@ -152,13 +238,17 @@ int main(int argc, char **argv) {
   ros::Publisher camera_path_pub = nh.advertise<nav_msgs::Path>("camera_path", 1, true);
   ros::Publisher terrain_map_pub = nh.advertise<grid_map_msgs::GridMap>("terrain", 1, true);
   ros::Publisher viewpoint_pub = nh.advertise<visualization_msgs::MarkerArray>("viewpoints", 1, true);
+  ros::Publisher reconstructed_viewpoint_pub =
+      nh.advertise<visualization_msgs::MarkerArray>("reconstructed_viewpoints", 1, true);
 
   std::string viewset_path;
-  std::string dem_path, dem_color_path;
+  std::string dem_path, dem_color_path, output_dir_path, camera_file;
   bool visualization_enabled{true};
   nh_private.param<std::string>("viewset_path", viewset_path, "");
   nh_private.param<std::string>("dem_path", dem_path, "");
+  nh_private.param<std::string>("camera_file", camera_file, "");
   nh_private.param<std::string>("dem_color_path", dem_color_path, "");
+  nh_private.param<std::string>("output_dir_path", output_dir_path, "");
   nh_private.param<bool>("visualize", visualization_enabled, true);
 
   auto terrain_map = std::make_shared<GridMapGeo>();
@@ -177,9 +267,11 @@ int main(int argc, char **argv) {
   for (const auto &dirEntry : std::filesystem::recursive_directory_iterator(viewset_path)) {
     if (dirEntry.path().extension() == ".JPG") {
       std::string image_path = dirEntry.path().string();
+      std::string image_name = dirEntry.path().filename();
       std::cout << "Reading file : " << dirEntry.path().string() << std::endl;
+      std::cout << "  - File name: " << image_name << std::endl;
       std::shared_ptr<ViewPoint> viewpoint;
-      if (getViewPointFromImage(image_path, viewpoint, idx++, map_origin)) {
+      if (getViewPointFromImage(image_path, image_name, viewpoint, idx++, map_origin)) {
         viewpoint_list.push_back(viewpoint);
       }
     }
@@ -187,17 +279,24 @@ int main(int argc, char **argv) {
 
   std::cout << "Viewpoint size: " << viewpoint_list.size() << std::endl;
 
-
   publishViewpoints(viewpoint_pub, viewpoint_list, Eigen::Vector3d(0.0, 0.0, 1.0));
 
   grid_map_msgs::GridMap msg;
   grid_map::GridMapRosConverter::toMessage(terrain_map->getGridMap(), msg);
   terrain_map_pub.publish(msg);
 
-  /// TODO: Align mesh in colmap
-  /// TODO: Parse mesh file from COLMAP
+  writePositionsToFile(output_dir_path + "/camera.txt", viewpoint_list);
+
+  /// Read colmap aligned camera poses and project over DEM
+  /// Visualize dense reconstructed mesh from COLMAP
+  std::vector<std::shared_ptr<ViewPoint>> reconstructed_viewpoints;
+  getViewPointFromCOLMAP(camera_file, viewpoint_list, reconstructed_viewpoints);
+
+  publishViewpoints(reconstructed_viewpoint_pub, reconstructed_viewpoints, Eigen::Vector3d(1.0, 1.0, 0.0));
 
   /// TODO: Compare mesh file with DEM
+
+  /// TODO: Compare view utility metrics
 
   ros::spin();
   return 0;
