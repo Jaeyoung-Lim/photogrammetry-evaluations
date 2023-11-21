@@ -202,6 +202,13 @@ Eigen::Matrix3d quat2RotMatrix(const Eigen::Vector4d &q) {
   return rotmat;
 }
 
+Eigen::Vector4d quatMultiplication(const Eigen::Vector4d &q, const Eigen::Vector4d &p) {
+  Eigen::Vector4d quat;
+  quat << p(0) * q(0) - p(1) * q(1) - p(2) * q(2) - p(3) * q(3), p(0) * q(1) + p(1) * q(0) - p(2) * q(3) + p(3) * q(2),
+      p(0) * q(2) + p(1) * q(3) + p(2) * q(0) - p(3) * q(1), p(0) * q(3) - p(1) * q(2) + p(2) * q(1) + p(3) * q(0);
+  return quat;
+}
+
 bool getViewPointFromCOLMAP(std::string path, std::vector<std::shared_ptr<ViewPoint>> &reference,
                             std::vector<std::shared_ptr<ViewPoint>> &viewpoints) {
   int idx{0};
@@ -216,7 +223,8 @@ bool getViewPointFromCOLMAP(std::string path, std::vector<std::shared_ptr<ViewPo
     if (parsePoseFromText(path, image_name, view_position, view_attitude)) {
       auto R = quat2RotMatrix(view_attitude);
       Eigen::Vector3d local_position = -R.transpose() * view_position;
-      Eigen::Vector4d local_attitude = view_attitude;
+      Eigen::Vector4d view_offset = Eigen::Vector4d(std::cos(M_PI_2), std::sin(M_PI_2), 0.0, 0.0);
+      Eigen::Vector4d local_attitude = quatMultiplication(view_offset, view_attitude);
       auto viewpoint = std::make_shared<ViewPoint>(idx++, local_position, local_attitude);
       std::cout << "  - Geotagged: " << image_name << std::endl;
       std::cout << "    - Local position: " << reference_view->getCenterLocal().transpose() << std::endl;
@@ -251,13 +259,16 @@ int main(int argc, char **argv) {
   nh_private.param<std::string>("output_dir_path", output_dir_path, "");
   nh_private.param<bool>("visualize", visualization_enabled, true);
 
-  auto terrain_map = std::make_shared<GridMapGeo>();
+  auto terrain_map = std::make_shared<TerrainMap>();
   terrain_map->Load(dem_path, false, dem_color_path);
 
   /// TODO: Parse exif tags from the images and visualize above DEM
   ESPG map_coordinate;
   Eigen::Vector3d map_origin;
   terrain_map->getGlobalOrigin(map_coordinate, map_origin);
+  terrain_map->AddLayerNormals("elevation");
+
+  auto utility_map = std::make_shared<ViewUtilityMap>(terrain_map->getGridMap());
 
   std::cout << "Map origin: " << map_origin << std::endl;
 
@@ -281,18 +292,23 @@ int main(int argc, char **argv) {
 
   publishViewpoints(viewpoint_pub, viewpoint_list, Eigen::Vector3d(0.0, 0.0, 1.0));
 
-  grid_map_msgs::GridMap msg;
-  grid_map::GridMapRosConverter::toMessage(terrain_map->getGridMap(), msg);
-  terrain_map_pub.publish(msg);
-
   writePositionsToFile(output_dir_path + "/camera.txt", viewpoint_list);
 
   /// Read colmap aligned camera poses and project over DEM
   /// Visualize dense reconstructed mesh from COLMAP
   std::vector<std::shared_ptr<ViewPoint>> reconstructed_viewpoints;
   getViewPointFromCOLMAP(camera_file, viewpoint_list, reconstructed_viewpoints);
+  std::vector<ViewPoint> dereferenced_viewpoints;
+  for (auto view : reconstructed_viewpoints) {
+    dereferenced_viewpoints.push_back(*view);
+  }
+  double utility = utility_map->CalculateViewUtility(dereferenced_viewpoints, true);
 
   publishViewpoints(reconstructed_viewpoint_pub, reconstructed_viewpoints, Eigen::Vector3d(1.0, 1.0, 0.0));
+
+  grid_map_msgs::GridMap msg;
+  grid_map::GridMapRosConverter::toMessage(terrain_map->getGridMap(), msg);
+  terrain_map_pub.publish(msg);
 
   /// TODO: Compare mesh file with DEM
 
