@@ -46,6 +46,8 @@
 
 #include "grid_map_ros/GridMapRosConverter.hpp"
 #include "photogrammetry_evaluations/geo_conversions.h"
+#include "grid_map_pcl/GridMapPclConverter.hpp"
+#include <pcl/io/obj_io.h>
 
 #include <filesystem>
 
@@ -245,15 +247,17 @@ int main(int argc, char **argv) {
 
   ros::Publisher camera_path_pub = nh.advertise<nav_msgs::Path>("camera_path", 1, true);
   ros::Publisher terrain_map_pub = nh.advertise<grid_map_msgs::GridMap>("terrain", 1, true);
+  ros::Publisher reconstructed_map_pub = nh.advertise<grid_map_msgs::GridMap>("reconstruction", 1, true);
   ros::Publisher viewpoint_pub = nh.advertise<visualization_msgs::MarkerArray>("viewpoints", 1, true);
   ros::Publisher reconstructed_viewpoint_pub =
       nh.advertise<visualization_msgs::MarkerArray>("reconstructed_viewpoints", 1, true);
 
   std::string viewset_path;
-  std::string dem_path, dem_color_path, output_dir_path, camera_file;
+  std::string dem_path, dem_color_path, mesh_path, output_dir_path, camera_file;
   bool visualization_enabled{true};
   nh_private.param<std::string>("viewset_path", viewset_path, "");
   nh_private.param<std::string>("dem_path", dem_path, "");
+  nh_private.param<std::string>("mesh_path", mesh_path, "");
   nh_private.param<std::string>("camera_file", camera_file, "");
   nh_private.param<std::string>("dem_color_path", dem_color_path, "");
   nh_private.param<std::string>("output_dir_path", output_dir_path, "");
@@ -311,6 +315,15 @@ int main(int argc, char **argv) {
   terrain_map_pub.publish(msg);
 
   /// TODO: Compare mesh file with DEM
+  grid_map::GridMap reconstructed_map = terrain_map->getGridMap();
+  pcl::PolygonMesh mesh;
+  pcl::io::loadPLYFile(mesh_path, mesh);
+  grid_map::GridMapPclConverter::addLayerFromPolygonMesh(mesh, "reconstruction", reconstructed_map);
+
+  grid_map_msgs::GridMap mesh_msg;
+  grid_map::GridMapRosConverter::toMessage(reconstructed_map, mesh_msg);
+  mesh_msg.info.header.frame_id = "map";
+  reconstructed_map_pub.publish(mesh_msg);
 
   /// TODO: Compare view utility metrics
 
