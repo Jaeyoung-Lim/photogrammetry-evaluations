@@ -233,6 +233,9 @@ bool getViewPointFromCOLMAP(std::string path, std::vector<std::shared_ptr<ViewPo
       Eigen::Vector3d local_position = -R.transpose() * view_position;
       Eigen::Vector4d view_offset = Eigen::Vector4d(std::cos(M_PI_2), std::sin(M_PI_2), 0.0, 0.0);
       Eigen::Vector4d local_attitude = quatMultiplication(view_offset, view_attitude);
+      ///TODO: Figure out why this is needed
+      local_attitude(2) = -local_attitude(2);
+      // local_attitude(1) = -local_attitude(1);
       auto viewpoint = std::make_shared<ViewPoint>(idx++, local_position, local_attitude);
       viewpoint->setImageName(image_name);
       viewpoints.push_back(viewpoint);
@@ -240,6 +243,38 @@ bool getViewPointFromCOLMAP(std::string path, std::vector<std::shared_ptr<ViewPo
   }
 
   return true;
+}
+
+void compareMapLayers(grid_map::GridMap &map, const std::string reference_layer, const std::string layer) {
+  std::vector<double> error_list;
+  map.add("error");
+
+  double max_error = -std::numeric_limits<double>::infinity();
+  for (grid_map::GridMapIterator iterator(map); !iterator.isPastEnd(); ++iterator) {
+    const grid_map::Index index(*iterator);
+    // Using at position allows us to use different resolution maps
+    double error = map.at(reference_layer, index) - map.at(layer, index);
+    if (std::isfinite(error)) {
+      double abs_error = std::abs(error);
+      map.at("error", index) = abs_error;
+      if (abs_error > max_error) {
+        max_error = abs_error;
+      }
+      error_list.push_back(abs_error);
+    }
+  }
+  double mean = {0.0};
+  for (const auto error : error_list) {
+    mean += (error / error_list.size());
+  }
+  double rmse_squared = {0.0};
+  for (const auto error : error_list) {
+    rmse_squared += std::pow(error - mean, 2) / error_list.size();
+  }
+  double rmse = std::sqrt(rmse_squared);
+  std::cout << "mean: " << mean << std::endl;
+  std::cout << "RMSE: " << rmse << std::endl;
+  std::cout << "Max Error: " << max_error << std::endl;
 }
 
 int main(int argc, char **argv) {
@@ -308,26 +343,29 @@ int main(int argc, char **argv) {
   for (auto view : reconstructed_viewpoints) {
     dereferenced_viewpoints.push_back(*view);
   }
+  /// Compare view utility metrics
   double utility = utility_map->CalculateViewUtility(dereferenced_viewpoints, true);
 
   publishViewpoints(reconstructed_viewpoint_pub, reconstructed_viewpoints, Eigen::Vector3d(1.0, 1.0, 0.0));
 
-  grid_map_msgs::GridMap msg;
-  grid_map::GridMapRosConverter::toMessage(terrain_map->getGridMap(), msg);
-  terrain_map_pub.publish(msg);
-
-  /// TODO: Compare mesh file with DEM
   grid_map::GridMap reconstructed_map = terrain_map->getGridMap();
   pcl::PolygonMesh mesh;
   pcl::io::loadPLYFile(mesh_path, mesh);
   grid_map::GridMapPclConverter::addLayerFromPolygonMesh(mesh, "reconstruction", reconstructed_map);
+  grid_map::GridMapPclConverter::addColorLayerFromPolygonMesh(mesh, "reconstruction_color", reconstructed_map);
+
+  /// Compare mesh file with DEM
+  compareMapLayers(reconstructed_map, "elevation", "reconstruction");
+
+  /// Publish maps
+  grid_map_msgs::GridMap msg;
+  grid_map::GridMapRosConverter::toMessage(terrain_map->getGridMap(), msg);
+  terrain_map_pub.publish(msg);
 
   grid_map_msgs::GridMap mesh_msg;
   grid_map::GridMapRosConverter::toMessage(reconstructed_map, mesh_msg);
   mesh_msg.info.header.frame_id = "map";
   reconstructed_map_pub.publish(mesh_msg);
-
-  /// TODO: Compare view utility metrics
 
   ros::spin();
   return 0;
