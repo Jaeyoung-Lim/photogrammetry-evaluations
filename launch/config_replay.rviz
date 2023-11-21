@@ -122,8 +122,8 @@ Visualization Manager:
       Autocompute Intensity Bounds: true
       Class: grid_map_rviz_plugin/GridMap
       Color: 200; 200; 200
-      Color Layer: elevation
-      Color Transformer: GridMapLayer
+      Color Layer: reconstruction
+      Color Transformer: IntensityLayer
       Enabled: true
       Height Layer: reconstruction
       Height Transformer: GridMapLayer
@@ -167,7 +167,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 1886.306640625
+      Distance: 1492.5504150390625
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -175,17 +175,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 263.2138671875
-        Y: 595.13720703125
-        Z: 414.2058410644531
+        X: 391.273193359375
+        Y: 433.6725769042969
+        Z: 428.7372741699219
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5097969770431519
+      Pitch: 0.5447970032691956
       Target Frame: <Fixed Frame>
-      Yaw: 4.209819793701172
+      Yaw: 4.0448174476623535
     Saved: ~
 Window Geometry:
   Displays:

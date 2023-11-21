@@ -4,7 +4,8 @@
 
 This repository contains tools for evaluating photogrammetry results using [COLMAP](https://github.com/colmap/colmap)
 
-![nextbestview_replay](https://user-images.githubusercontent.com/5248102/189872473-2ca6a60b-0651-4043-9336-0267f14f7471.gif)
+![rviz_screenshot_2023_11_21-13_15_28](https://github.com/Jaeyoung-Lim/photogrammetry-evaluations/assets/5248102/5bf7bae7-13fb-41f2-ba35-74bc908fd493)
+
 
 ## Setup
 We use COLMAP for the Multiview Stereo pipeline. To install, follow the installation [instructions](https://colmap.github.io/install.html).
