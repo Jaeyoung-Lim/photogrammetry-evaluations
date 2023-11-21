@@ -2,9 +2,12 @@ cmake_minimum_required(VERSION 2.8.12)
 project(photogrammetry_evaluations)
 
 add_definitions(-std=c++17)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 find_package(GDAL)
 find_package(OpenCV REQUIRED)
+find_package(GeographicLib REQUIRED)
+include(CheckGeographicLibDatasets)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
@@ -35,6 +38,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${Eigen_INCLUDE_DIRS}
   ${GDAL_INCLUDE_DIRS}
+  ${GeographicLib_INCLUDE_DIRS}
 )
 
 add_library(${PROJECT_NAME}
@@ -56,7 +60,7 @@ add_executable(replay_node
   src/replay_node.cpp
 )
 add_dependencies(replay_node ${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} ${GDAL_LIBRARY})
-target_link_libraries(replay_node ${PROJECT_NAME} ${catkin_LIBRARIES} ${GDAL_LIBRARY} ${OpenCV_LIBRARIES} pthread)
+target_link_libraries(replay_node ${PROJECT_NAME} ${catkin_LIBRARIES} ${GDAL_LIBRARY} ${OpenCV_LIBRARIES} pthread ${GeographicLib_LIBRARIES})
 
 #############
 ## Testing ##

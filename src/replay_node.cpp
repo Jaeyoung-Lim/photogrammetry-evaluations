@@ -44,10 +44,12 @@
 #include "terrain_navigation/data_logger.h"
 #include "terrain_navigation/visualization.h"
 
+#include <pcl/io/obj_io.h>
+#include "grid_map_pcl/GridMapPclConverter.hpp"
 #include "grid_map_ros/GridMapRosConverter.hpp"
 #include "photogrammetry_evaluations/geo_conversions.h"
-#include "grid_map_pcl/GridMapPclConverter.hpp"
-#include <pcl/io/obj_io.h>
+
+#include "GeographicLib/Geoid.hpp"
 
 #include <filesystem>
 
@@ -116,14 +118,18 @@ bool getViewPointFromImage(std::string &image_path, std::string image_name, std:
 
   if (!poSrcDS) return false;
 
+  auto egm96_5 = std::make_shared<GeographicLib::Geoid>("egm96-5", "", true, true);
+
   std::string exif_gps_altitude = poSrcDS->GetMetadataItem("EXIF_GPSAltitude");
   std::string exif_gps_latitude = poSrcDS->GetMetadataItem("EXIF_GPSLatitude");
   std::string exif_gps_longitude = poSrcDS->GetMetadataItem("EXIF_GPSLongitude");
   std::string exif_gps_track = poSrcDS->GetMetadataItem("EXIF_GPSTrack");
 
-  double viewpoint_altitude = StringToGeoReference(exif_gps_altitude);
   double viewpoint_latitude = StringToGeoReference(exif_gps_latitude);
   double viewpoint_longitude = StringToGeoReference(exif_gps_longitude);
+  double viewpoint_altitude =
+      StringToGeoReference(exif_gps_altitude) +
+      GeographicLib::Geoid::GEOIDTOELLIPSOID * (*egm96_5)(viewpoint_latitude, viewpoint_longitude);  // AMSL altitude
   std::cout << "latitude: " << viewpoint_latitude << " longitude: " << viewpoint_longitude
             << " altitude: " << viewpoint_altitude << std::endl;
 
@@ -228,10 +234,6 @@ bool getViewPointFromCOLMAP(std::string path, std::vector<std::shared_ptr<ViewPo
       Eigen::Vector4d view_offset = Eigen::Vector4d(std::cos(M_PI_2), std::sin(M_PI_2), 0.0, 0.0);
       Eigen::Vector4d local_attitude = quatMultiplication(view_offset, view_attitude);
       auto viewpoint = std::make_shared<ViewPoint>(idx++, local_position, local_attitude);
-      std::cout << "  - Geotagged: " << image_name << std::endl;
-      std::cout << "    - Local position: " << reference_view->getCenterLocal().transpose() << std::endl;
-      std::cout << "  - Reconstructed: " << std::endl;
-      std::cout << "    - Local position: " << local_position.transpose() << std::endl;
       viewpoint->setImageName(image_name);
       viewpoints.push_back(viewpoint);
     }

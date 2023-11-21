@@ -12,7 +12,6 @@ Panels:
         - /Path1
         - /MarkerArray2
         - /GridMap2
-        - /GridMap2/Status1
       Splitter Ratio: 0.5
     Tree Height: 845
   - Class: rviz/Selection
@@ -58,12 +57,12 @@ Visualization Manager:
       Plane Cell Count: 10
       Reference Frame: <Fixed Frame>
       Value: true
-    - Alpha: 1
+    - Alpha: 0.5
       Autocompute Intensity Bounds: true
       Class: grid_map_rviz_plugin/GridMap
       Color: 0; 0; 255
-      Color Layer: color
-      Color Transformer: ColorLayer
+      Color Layer: geometric_prior
+      Color Transformer: IntensityLayer
       Enabled: true
       Height Layer: elevation
       Height Transformer: GridMapLayer
@@ -126,7 +125,7 @@ Visualization Manager:
       Color Layer: elevation
       Color Transformer: GridMapLayer
       Enabled: true
-      Height Layer: elevation
+      Height Layer: reconstruction
       Height Transformer: GridMapLayer
       History Length: 1
       Invert Rainbow: false
@@ -168,7 +167,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 2093.55322265625
+      Distance: 1886.306640625
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -176,17 +175,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 330.3721618652344
-        Y: 547.2584228515625
-        Z: 377.08349609375
+        X: 263.2138671875
+        Y: 595.13720703125
+        Z: 414.2058410644531
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5547971129417419
+      Pitch: 0.5097969770431519
       Target Frame: <Fixed Frame>
-      Yaw: 4.514819622039795
+      Yaw: 4.209819793701172
     Saved: ~
 Window Geometry:
   Displays:
