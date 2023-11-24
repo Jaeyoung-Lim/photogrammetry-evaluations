@@ -68,6 +68,12 @@ add_executable(process_geotag
 add_dependencies(process_geotag ${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} ${GDAL_LIBRARY})
 target_link_libraries(process_geotag ${PROJECT_NAME} ${catkin_LIBRARIES} ${GDAL_LIBRARY} ${OpenCV_LIBRARIES} pthread ${GeographicLib_LIBRARIES})
 
+add_executable(nbv_mapping
+  src/nbv_mapping.cpp
+)
+add_dependencies(nbv_mapping ${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} ${GDAL_LIBRARY})
+target_link_libraries(nbv_mapping ${PROJECT_NAME} ${catkin_LIBRARIES} ${GDAL_LIBRARY} ${OpenCV_LIBRARIES} pthread ${GeographicLib_LIBRARIES})
+
 #############
 ## Testing ##
 #############

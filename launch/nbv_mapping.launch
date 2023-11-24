@@ -1,0 +1,23 @@
+<launch>
+<!-- Compare mesh between two meshes -->
+    <arg name="visualization" default="true"/>
+    <arg name="dataset_path" default="/home/jaeyoung/Downloads/example_cadastre/images"/>
+    <arg name="dem_path" default="$(find photogrammetry_evaluations)/resources/cadastre_1m.tif"/>
+    <arg name="mesh_path" default="$(find photogrammetry_evaluations)/dataset/dense/meshed-poisson.ply"/>
+    <arg name="dem_color_path" default="$(find photogrammetry_evaluations)/resources/cadastre_1m_color.tif"/>
+    <arg name="camera_file" default="$(find photogrammetry_evaluations)/dataset/sparse/1/images.txt"/>
+
+    <node pkg="tf" type="static_transform_publisher" name="world_map" args="0 0 0 0 0 0 world map 10"/>
+    <node pkg="photogrammetry_evaluations" type="replay_node" name="test_mesh" output="screen" required="true">
+        <param name="dem_path" value="$(arg dem_path)"/>
+        <param name="dem_color_path" value="$(arg dem_color_path)"/>
+        <param name="viewset_path" value="$(arg dataset_path)"/>
+        <param name="camera_file" value="$(arg camera_file)"/>
+        <param name="output_dir_path" value="$(find photogrammetry_evaluations)/output"/>
+        <param name="mesh_path" value="$(arg mesh_path)"/>
+    </node>
+
+    <group if="$(arg visualization)">
+        <node type="rviz" name="rviz" pkg="rviz" args="-d $(find photogrammetry_evaluations)/launch/config_replay.rviz" required="true"/>
+    </group>
+</launch>
