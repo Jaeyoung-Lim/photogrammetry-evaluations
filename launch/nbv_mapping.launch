@@ -8,7 +8,7 @@
     <arg name="camera_file" default="$(find photogrammetry_evaluations)/dataset/sparse/1/images.txt"/>
 
     <node pkg="tf" type="static_transform_publisher" name="world_map" args="0 0 0 0 0 0 world map 10"/>
-    <node pkg="photogrammetry_evaluations" type="replay_node" name="test_mesh" output="screen" required="true">
+    <node pkg="photogrammetry_evaluations" type="nbv_mapping" name="test_mesh" output="screen" required="true">
         <param name="dem_path" value="$(arg dem_path)"/>
         <param name="dem_color_path" value="$(arg dem_color_path)"/>
         <param name="viewset_path" value="$(arg dataset_path)"/>
