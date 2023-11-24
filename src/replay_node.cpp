@@ -37,8 +37,6 @@
  * @author Jaeyoung Lim <jalim@ethz.ch>
  */
 
-#include "photogrammetry_evaluations/evaluation.h"
-
 #include "adaptive_viewutility/adaptive_viewutility.h"
 #include "adaptive_viewutility/evaluation.h"
 #include "terrain_navigation/data_logger.h"
@@ -47,40 +45,11 @@
 #include <pcl/io/obj_io.h>
 #include "grid_map_pcl/GridMapPclConverter.hpp"
 #include "grid_map_ros/GridMapRosConverter.hpp"
+#include "photogrammetry_evaluations/colmap_io.h"
 #include "photogrammetry_evaluations/geo_conversions.h"
 
-#include "GeographicLib/Geoid.hpp"
-
 #include <filesystem>
-
-void ReadViewset(const std::string path, std::vector<PathSegment> &view_set) {
-  // Write data to files
-  bool parse_result;
-
-  std::ifstream file(path);
-  std::string str;
-
-  // Look for the image file name in the path
-  while (getline(file, str)) {
-    std::stringstream ss(str);
-    std::vector<std::string> data;
-    std::string cc;
-    while (getline(ss, cc, ',')) {
-      data.push_back(cc);
-    }
-    // #   ID, x, y, z, qw, qx, qy, qz
-    ss >> data[0] >> data[1] >> data[2] >> data[3] >> data[4] >> data[5] >> data[6] >> data[7];
-    if (data[0] == "id") continue;
-    State state;
-    state.position << std::stof(data[1]), std::stof(data[2]), std::stof(data[3]);
-    state.attitude << std::stof(data[4]), std::stof(data[5]), std::stof(data[6]), std::stof(data[7]);
-
-    PathSegment view;
-    view.states.push_back(state);
-    view_set.push_back(view);
-  }
-  return;
-}
+#include "photogrammetry_evaluations/exif_io.h"
 
 void publishCameraPath(const ros::Publisher pub, const std::vector<ViewPoint> viewpoints) {
   std::vector<geometry_msgs::PoseStamped> posestampedhistory_vector;
@@ -110,139 +79,6 @@ void publishViewpoints(const ros::Publisher &viewpoint_pub, std::vector<std::sha
   visualization_msgs::MarkerArray viewpoint_marker_msg;
   viewpoint_marker_msg.markers = viewpoint_vector;
   viewpoint_pub.publish(viewpoint_marker_msg);
-}
-
-bool getViewPointFromImage(std::string &image_path, std::string image_name, std::shared_ptr<ViewPoint> &viewpoint,
-                           int idx, Eigen::Vector3d map_origin) {
-  GDALDataset *poSrcDS = (GDALDataset *)GDALOpen(image_path.c_str(), GA_ReadOnly);
-
-  if (!poSrcDS) return false;
-
-  auto egm96_5 = std::make_shared<GeographicLib::Geoid>("egm96-5", "", true, true);
-
-  std::string exif_gps_altitude = poSrcDS->GetMetadataItem("EXIF_GPSAltitude");
-  std::string exif_gps_latitude = poSrcDS->GetMetadataItem("EXIF_GPSLatitude");
-  std::string exif_gps_longitude = poSrcDS->GetMetadataItem("EXIF_GPSLongitude");
-  std::string exif_gps_track = poSrcDS->GetMetadataItem("EXIF_GPSTrack");
-
-  double viewpoint_latitude = StringToGeoReference(exif_gps_latitude);
-  double viewpoint_longitude = StringToGeoReference(exif_gps_longitude);
-  double viewpoint_altitude =
-      StringToGeoReference(exif_gps_altitude) +
-      GeographicLib::Geoid::GEOIDTOELLIPSOID * (*egm96_5)(viewpoint_latitude, viewpoint_longitude);  // AMSL altitude
-  std::cout << "latitude: " << viewpoint_latitude << " longitude: " << viewpoint_longitude
-            << " altitude: " << viewpoint_altitude << std::endl;
-
-  double time_seconds = GetTimeInSeconds(std::string(poSrcDS->GetMetadataItem("EXIF_DateTime")));
-
-  /// TODO: Set viewpoint local position from geo reference
-  Eigen::Vector3d lv03_viewpoint_position;
-  GeoConversions::forward(viewpoint_latitude, viewpoint_longitude, viewpoint_altitude, lv03_viewpoint_position.x(),
-                          lv03_viewpoint_position.y(), lv03_viewpoint_position.z());
-
-  Eigen::Vector3d local_position = lv03_viewpoint_position - map_origin;
-
-  std::cout << "Local position: " << local_position.transpose() << std::endl;
-  Eigen::Vector4d local_attitude{1.0, 0.0, 0.0, 0.0};
-  viewpoint = std::make_shared<ViewPoint>(idx, local_position, local_attitude);
-
-  viewpoint->setTime(time_seconds);
-  viewpoint->setImage(image_path);
-  viewpoint->setImageName(image_name);
-
-  GDALClose((GDALDatasetH)poSrcDS);
-
-  return true;
-}
-
-void writePositionsToFile(std::string output_path, std::vector<std::shared_ptr<ViewPoint>> viewpoints) {
-  std::shared_ptr<DataLogger> camera_logger = std::make_shared<DataLogger>();
-  camera_logger->setKeys({"file", "X", "Y", "Z"});
-  camera_logger->setSeparator(" ");
-
-  for (auto &view : viewpoints) {
-    auto center_position = view->getCenterLocal();
-    std::unordered_map<std::string, std::any> camera_state;
-    camera_state.insert(std::pair<std::string, std::string>("file", view->getImageName()));
-    camera_state.insert(std::pair<std::string, double>("X", center_position.x()));
-    camera_state.insert(std::pair<std::string, double>("Y", center_position.y()));
-    camera_state.insert(std::pair<std::string, double>("Z", center_position.z()));
-    camera_logger->record(camera_state);
-  }
-  camera_logger->writeToFile(output_path);
-}
-
-bool parsePoseFromText(std::string text_path, std::string image_file, Eigen::Vector3d &position,
-                       Eigen::Vector4d &attitude) {
-  bool parse_result;
-
-  std::ifstream file(text_path);
-  std::string str;
-
-  // Look for the image file name in the path
-  while (getline(file, str)) {
-    if (str.find(image_file) != std::string::npos) {
-      std::stringstream ss(str);
-      std::vector<std::string> camera_pose;
-      camera_pose.resize(9);
-      // #   IMAGE_ID, QW, QX, QY, QZ, TX, TY, TZ, CAMERA_ID, NAME
-      ss >> camera_pose[0] >> camera_pose[1] >> camera_pose[2] >> camera_pose[3] >> camera_pose[4] >> camera_pose[5] >>
-          camera_pose[6] >> camera_pose[7] >> camera_pose[8];
-      attitude << std::stof(camera_pose[1]), std::stof(camera_pose[2]), std::stof(camera_pose[3]),
-          std::stof(camera_pose[4]);
-      position << std::stof(camera_pose[5]), std::stof(camera_pose[6]), std::stof(camera_pose[7]);
-      return true;
-    }
-  }
-  return false;
-}
-
-Eigen::Matrix3d quat2RotMatrix(const Eigen::Vector4d &q) {
-  Eigen::Matrix3d rotmat;
-  rotmat << q(0) * q(0) + q(1) * q(1) - q(2) * q(2) - q(3) * q(3), 2 * q(1) * q(2) - 2 * q(0) * q(3),
-      2 * q(0) * q(2) + 2 * q(1) * q(3),
-
-      2 * q(0) * q(3) + 2 * q(1) * q(2), q(0) * q(0) - q(1) * q(1) + q(2) * q(2) - q(3) * q(3),
-      2 * q(2) * q(3) - 2 * q(0) * q(1),
-
-      2 * q(1) * q(3) - 2 * q(0) * q(2), 2 * q(0) * q(1) + 2 * q(2) * q(3),
-      q(0) * q(0) - q(1) * q(1) - q(2) * q(2) + q(3) * q(3);
-  return rotmat;
-}
-
-Eigen::Vector4d quatMultiplication(const Eigen::Vector4d &q, const Eigen::Vector4d &p) {
-  Eigen::Vector4d quat;
-  quat << p(0) * q(0) - p(1) * q(1) - p(2) * q(2) - p(3) * q(3), p(0) * q(1) + p(1) * q(0) - p(2) * q(3) + p(3) * q(2),
-      p(0) * q(2) + p(1) * q(3) + p(2) * q(0) - p(3) * q(1), p(0) * q(3) - p(1) * q(2) + p(2) * q(1) + p(3) * q(0);
-  return quat;
-}
-
-bool getViewPointFromCOLMAP(std::string path, std::vector<std::shared_ptr<ViewPoint>> &reference,
-                            std::vector<std::shared_ptr<ViewPoint>> &viewpoints) {
-  int idx{0};
-  /// TODO: Parse camera views from text file
-
-  std::cout << "Reading camera file: " << path << std::endl;
-
-  for (auto reference_view : reference) {
-    std::string image_name = reference_view->getImageName();
-    Eigen::Vector3d view_position;
-    Eigen::Vector4d view_attitude;
-    if (parsePoseFromText(path, image_name, view_position, view_attitude)) {
-      auto R = quat2RotMatrix(view_attitude);
-      Eigen::Vector3d local_position = -R.transpose() * view_position;
-      Eigen::Vector4d view_offset = Eigen::Vector4d(std::cos(M_PI_2), std::sin(M_PI_2), 0.0, 0.0);
-      Eigen::Vector4d local_attitude = quatMultiplication(view_offset, view_attitude);
-      ///TODO: Figure out why this is needed
-      local_attitude(2) = -local_attitude(2);
-      // local_attitude(1) = -local_attitude(1);
-      auto viewpoint = std::make_shared<ViewPoint>(idx++, local_position, local_attitude);
-      viewpoint->setImageName(image_name);
-      viewpoints.push_back(viewpoint);
-    }
-  }
-
-  return true;
 }
 
 void compareMapLayers(grid_map::GridMap &map, const std::string reference_layer, const std::string layer) {
@@ -323,7 +159,7 @@ int main(int argc, char **argv) {
       std::cout << "Reading file : " << dirEntry.path().string() << std::endl;
       std::cout << "  - File name: " << image_name << std::endl;
       std::shared_ptr<ViewPoint> viewpoint;
-      if (getViewPointFromImage(image_path, image_name, viewpoint, idx++, map_origin)) {
+      if (exifio::getViewPointFromImage(image_path, image_name, viewpoint, idx++, map_origin)) {
         viewpoint_list.push_back(viewpoint);
       }
     }
@@ -333,12 +169,10 @@ int main(int argc, char **argv) {
 
   publishViewpoints(viewpoint_pub, viewpoint_list, Eigen::Vector3d(0.0, 0.0, 1.0));
 
-  writePositionsToFile(output_dir_path + "/camera.txt", viewpoint_list);
-
   /// Read colmap aligned camera poses and project over DEM
   /// Visualize dense reconstructed mesh from COLMAP
   std::vector<std::shared_ptr<ViewPoint>> reconstructed_viewpoints;
-  getViewPointFromCOLMAP(camera_file, viewpoint_list, reconstructed_viewpoints);
+  colmapio::getViewPointFromCOLMAP(camera_file, viewpoint_list, reconstructed_viewpoints);
   std::vector<ViewPoint> dereferenced_viewpoints;
   for (auto view : reconstructed_viewpoints) {
     dereferenced_viewpoints.push_back(*view);
