@@ -40,7 +40,6 @@
 #include "adaptive_viewutility/adaptive_viewutility.h"
 #include "adaptive_viewutility/evaluation.h"
 #include "terrain_navigation/data_logger.h"
-#include "terrain_navigation/visualization.h"
 
 #include <pcl/io/obj_io.h>
 #include "grid_map_pcl/GridMapPclConverter.hpp"
