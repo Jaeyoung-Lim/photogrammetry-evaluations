@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
   terrain_map->getGlobalOrigin(map_coordinate, map_origin);
   terrain_map->AddLayerNormals("elevation");
 
-  std::cout << "Map origin: " << map_origin << std::endl;
+  std::cout << "Map origin: " << map_origin.transpose() << std::endl;
 
   /// Iterate through image files
   std::vector<std::shared_ptr<ViewPoint>> viewpoint_list;
