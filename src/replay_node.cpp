@@ -200,6 +200,9 @@ int main(int argc, char **argv) {
   mesh_msg.info.header.frame_id = "map";
   reconstructed_map_pub.publish(mesh_msg);
 
+  ///TODO: Write map information into a csv file
+  writeMapToFile(output_dir_path + "/map.csv", reconstructed_map);
+
   ros::spin();
   return 0;
 }
