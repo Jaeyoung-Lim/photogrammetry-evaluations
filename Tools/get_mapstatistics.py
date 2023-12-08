@@ -17,7 +17,6 @@ def analyzeErrorStatistics(fig, data_df, name):
     n, bins, patches = fig.hist(error, bins=100, alpha=0.75, label=name)
     fig.set_xlabel('Error [m]')
     fig.set_ylabel('Number of Points')
-    fig.set_title('Error')
     fig.grid(True)
     fig.legend(loc="upper right")
 
@@ -30,7 +29,6 @@ def analyzeUtilityStatistics(fig, data_df, name):
     fig.scatter(cr_bound, np.abs(error), s=2, lw = 0, alpha=0.01)
     fig.set_xlabel('Cramer-Rao Bounds')
     fig.set_ylabel('Error')
-    fig.set_title('Error')
     fig.grid(True)
     fig.legend(loc="upper right")
 
@@ -106,12 +104,6 @@ ax11 = fig1.add_subplot(1, 1, 1)
 fig2 = plt.figure("Utility Statistics")
 ax21 = fig2.add_subplot(1, 1, 1)
 
-fig3 = plt.figure("Precision Curve")
-ax31 = fig3.add_subplot(1, 3, 1)
-ax32 = fig3.add_subplot(1, 3, 2)
-ax33 = fig3.add_subplot(1, 3, 3)
-
-
 
 with open(sys.argv[1]) as file:
     # The FullLoader parameter handles the conversion from YAML
@@ -124,6 +116,6 @@ with open(sys.argv[1]) as file:
     # analyzePrecision(ax31, map_data_df, "")
     # analyzeCompleteness(ax32, map_data_df, "")
     # analyzeF1score(ax33, map_data_df, "")
-
+plt.tight_layout()
 plt.legend()
 plt.show()
