@@ -146,7 +146,7 @@ int main(int argc, char **argv) {
 
   auto utility_map = std::make_shared<ViewUtilityMap>(terrain_map->getGridMap());
 
-  std::cout << "Map origin: " << map_origin << std::endl;
+  std::cout << "Map origin: " << map_origin.transpose() << std::endl;
 
   /// Iterate through image files
   std::vector<std::shared_ptr<ViewPoint>> viewpoint_list;

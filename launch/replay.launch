@@ -1,10 +1,12 @@
 <launch>
 <!-- Compare mesh between two meshes -->
     <arg name="visualization" default="true"/>
-    <arg name="dataset_path" default="/home/jaeyoung/Downloads/example_cadastre/images"/>
-    <arg name="dem_path" default="$(find photogrammetry_evaluations)/resources/cadastre_1m.tif"/>
+    <arg name="dataset_path" default="$(find photogrammetry_evaluations)/dataset/images"/>
+    <!-- <arg name="dem_path" default="$(find photogrammetry_evaluations)/resources/cadastre_1m.tif"/> -->
+    <!-- <arg name="dem_color_path" default="$(find photogrammetry_evaluations)/resources/cadastre_1m_color.tif"/> -->
+    <arg name="dem_path" default="$(find photogrammetry_evaluations)/resources/quarry_1m.tif"/>
+    <arg name="dem_color_path" default="$(find photogrammetry_evaluations)/resources/quarry_1m_color.tif"/>
     <arg name="mesh_path" default="$(find photogrammetry_evaluations)/dataset/dense/meshed-poisson.ply"/>
-    <arg name="dem_color_path" default="$(find photogrammetry_evaluations)/resources/cadastre_1m_color.tif"/>
     <arg name="camera_file" default="$(find photogrammetry_evaluations)/dataset/sparse/1/images.txt"/>
 
     <node pkg="tf" type="static_transform_publisher" name="world_map" args="0 0 0 0 0 0 world map 10"/>

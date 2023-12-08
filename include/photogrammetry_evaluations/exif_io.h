@@ -50,17 +50,13 @@ bool getViewPointFromImage(std::string &image_path, std::string image_name, std:
   std::string exif_gps_altitude = poSrcDS->GetMetadataItem("EXIF_GPSAltitude");
   std::string exif_gps_latitude = poSrcDS->GetMetadataItem("EXIF_GPSLatitude");
   std::string exif_gps_longitude = poSrcDS->GetMetadataItem("EXIF_GPSLongitude");
-  std::string exif_gps_track = poSrcDS->GetMetadataItem("EXIF_GPSTrack");
 
   double viewpoint_latitude = StringToGeoReference(exif_gps_latitude);
   double viewpoint_longitude = StringToGeoReference(exif_gps_longitude);
-  double viewpoint_altitude =
-      StringToGeoReference(exif_gps_altitude) +
-      GeographicLib::Geoid::GEOIDTOELLIPSOID * (*egm96_5)(viewpoint_latitude, viewpoint_longitude);  // AMSL altitude
+  double viewpoint_altitude = StringToGeoReference(exif_gps_altitude);
+  // + GeographicLib::Geoid::GEOIDTOELLIPSOID * (*egm96_5)(viewpoint_latitude, viewpoint_longitude);  // AMSL altitude
   std::cout << "latitude: " << viewpoint_latitude << " longitude: " << viewpoint_longitude
             << " altitude: " << viewpoint_altitude << std::endl;
-
-  double time_seconds = GetTimeInSeconds(std::string(poSrcDS->GetMetadataItem("EXIF_DateTime")));
 
   /// TODO: Set viewpoint local position from geo reference
   Eigen::Vector3d lv03_viewpoint_position;
@@ -73,7 +69,6 @@ bool getViewPointFromImage(std::string &image_path, std::string image_name, std:
   Eigen::Vector4d local_attitude{1.0, 0.0, 0.0, 0.0};
   viewpoint = std::make_shared<ViewPoint>(idx, local_position, local_attitude);
 
-  viewpoint->setTime(time_seconds);
   viewpoint->setImage(image_path);
   viewpoint->setImageName(image_name);
 
