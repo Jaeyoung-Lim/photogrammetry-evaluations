@@ -4,8 +4,8 @@
     <arg name="dataset_path" default="$(find photogrammetry_evaluations)/dataset/images"/>
     <!-- <arg name="dem_path" default="$(find photogrammetry_evaluations)/resources/cadastre_1m.tif"/> -->
     <!-- <arg name="dem_color_path" default="$(find photogrammetry_evaluations)/resources/cadastre_1m_color.tif"/> -->
-    <arg name="dem_path" default="$(find photogrammetry_evaluations)/resources/quarry_1m.tif"/>
-    <arg name="dem_color_path" default="$(find photogrammetry_evaluations)/resources/quarry_1m_color.tif"/>
+    <arg name="dem_path" default="$(find terrain_models)/models/hinwil.tif"/>
+    <arg name="dem_color_path" default="$(find terrain_models)/models/hinwil_color.tif"/>
     <arg name="mesh_path" default="$(find photogrammetry_evaluations)/dataset/dense/meshed-poisson.ply"/>
     <arg name="camera_file" default="$(find photogrammetry_evaluations)/dataset/sparse/1/images.txt"/>
 
