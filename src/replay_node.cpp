@@ -201,7 +201,7 @@ int main(int argc, char **argv) {
   reconstructed_map_pub.publish(mesh_msg);
 
   ///TODO: Write map information into a csv file
-  writeMapToFile(output_dir_path + "/map.csv", reconstructed_map);
+  // writeMapToFile(output_dir_path + "/map.csv", reconstructed_map);
 
   ros::spin();
   return 0;

@@ -85,6 +85,7 @@ int main(int argc, char **argv) {
       std::string image_name = dirEntry.path().filename();
       std::cout << "Reading file : " << dirEntry.path().string() << std::endl;
       std::cout << "  - File name: " << image_name << std::endl;
+      std::cout << "  - Image Path: " << image_path << std::endl;
       std::shared_ptr<ViewPoint> viewpoint;
       if (exifio::getViewPointFromImage(image_path, image_name, viewpoint, idx++, map_origin)) {
         viewpoint_list.push_back(viewpoint);

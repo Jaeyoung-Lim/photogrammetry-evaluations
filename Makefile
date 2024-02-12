@@ -1,4 +1,4 @@
-path?=${CURDIR}/dataset
+dataset?=${CURDIR}/dataset
 
 clean:
 	rm -rf dataset/dense/*
@@ -11,10 +11,10 @@ format:
 
 increment: SHELL:=/bin/bash
 increment:
-	./scripts/incremental_reconstruction.sh -d ${path} -o ${CURDIR}/output
+	./scripts/incremental_reconstruction.sh -d ${dataset} -o ${CURDIR}/output
 
 reconstruct:
-	./scripts/reconstruction.sh ${path} .
+	./scripts/reconstruction.sh ${dataset} .
 
 register:
-	./scripts/register.sh ${path} .
+	./scripts/register.sh ${dataset} .
