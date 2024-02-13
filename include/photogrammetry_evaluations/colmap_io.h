@@ -188,11 +188,12 @@ bool getViewPointFromCOLMAP(std::string camera_path, std::string path,
     if (parsePoseFromText(path, image_name, view_position, view_attitude)) {
       auto R = quat2RotMatrix(view_attitude);
       Eigen::Vector3d local_position = -R.transpose() * view_position;
-      Eigen::Vector4d view_offset = Eigen::Vector4d(std::cos(M_PI_2), std::sin(M_PI_2), 0.0, 0.0);
-      Eigen::Vector4d local_attitude = quatMultiplication(view_offset, view_attitude);
+      Eigen::Vector4d view_offset = Eigen::Vector4d(std::cos(0.5 * M_PI), std::sin(0.5 * M_PI), 0.0, 0.0);
+      Eigen::Vector4d local_attitude = quatMultiplication(view_attitude, view_offset);
+      local_attitude = quatMultiplication(local_attitude, Eigen::Vector4d(std::cos(0.5 * M_PI_2), 0.0, 0.0, std::sin( 0.5 * M_PI_2)));
       /// TODO: Figure out why this is needed
       local_attitude(2) = -local_attitude(2);
-      // local_attitude(1) = -local_attitude(1);
+      local_attitude(1) = -local_attitude(1);
       auto viewpoint = std::make_shared<ViewPoint>(idx++, local_position, local_attitude, camera_intrinsics.width,
                                                    camera_intrinsics.height, camera_intrinsics.focal_length);
       viewpoint->setImageName(image_name);
