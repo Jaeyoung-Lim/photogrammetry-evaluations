@@ -125,12 +125,13 @@ int main(int argc, char **argv) {
       nh.advertise<visualization_msgs::MarkerArray>("reconstructed_viewpoints", 1, true);
 
   std::string viewset_path;
-  std::string dem_path, dem_color_path, mesh_path, output_dir_path, camera_file;
+  std::string dem_path, dem_color_path, mesh_path, output_dir_path, camera_file, camera_parameters;
   bool visualization_enabled{true};
   nh_private.param<std::string>("viewset_path", viewset_path, "");
   nh_private.param<std::string>("dem_path", dem_path, "");
   nh_private.param<std::string>("mesh_path", mesh_path, "");
   nh_private.param<std::string>("camera_file", camera_file, "");
+  nh_private.param<std::string>("camera_parameters", camera_parameters, "");
   nh_private.param<std::string>("dem_color_path", dem_color_path, "");
   nh_private.param<std::string>("output_dir_path", output_dir_path, "");
   nh_private.param<bool>("visualize", visualization_enabled, true);
@@ -171,7 +172,7 @@ int main(int argc, char **argv) {
   /// Read colmap aligned camera poses and project over DEM
   /// Visualize dense reconstructed mesh from COLMAP
   std::vector<std::shared_ptr<ViewPoint>> reconstructed_viewpoints;
-  colmapio::getViewPointFromCOLMAP(camera_file, viewpoint_list, reconstructed_viewpoints);
+  colmapio::getViewPointFromCOLMAP(camera_parameters, camera_file, viewpoint_list, reconstructed_viewpoints);
   std::vector<ViewPoint> dereferenced_viewpoints;
   for (auto view : reconstructed_viewpoints) {
     dereferenced_viewpoints.push_back(*view);
@@ -200,7 +201,7 @@ int main(int argc, char **argv) {
   mesh_msg.info.header.frame_id = "map";
   reconstructed_map_pub.publish(mesh_msg);
 
-  ///TODO: Write map information into a csv file
+  /// TODO: Write map information into a csv file
   // writeMapToFile(output_dir_path + "/map.csv", reconstructed_map);
 
   ros::spin();
