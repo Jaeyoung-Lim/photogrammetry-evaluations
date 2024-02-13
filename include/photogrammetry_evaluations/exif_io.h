@@ -53,8 +53,9 @@ bool getViewPointFromImage(std::string &image_path, std::string image_name, std:
 
   double viewpoint_latitude = StringToGeoReference(exif_gps_latitude);
   double viewpoint_longitude = StringToGeoReference(exif_gps_longitude);
-  double viewpoint_altitude = StringToGeoReference(exif_gps_altitude);
-  // + GeographicLib::Geoid::GEOIDTOELLIPSOID * (*egm96_5)(viewpoint_latitude, viewpoint_longitude);  // AMSL altitude
+  double viewpoint_altitude =
+      StringToGeoReference(exif_gps_altitude) +
+      GeographicLib::Geoid::GEOIDTOELLIPSOID * (*egm96_5)(viewpoint_latitude, viewpoint_longitude);  // AMSL altitude
   std::cout << "latitude: " << viewpoint_latitude << " longitude: " << viewpoint_longitude
             << " altitude: " << viewpoint_altitude << std::endl;
 

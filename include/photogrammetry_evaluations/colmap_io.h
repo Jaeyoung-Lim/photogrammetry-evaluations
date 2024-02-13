@@ -91,8 +91,6 @@ void ReadViewset(const std::string path, std::vector<PathSegment> &view_set) {
 
 bool parsePoseFromText(std::string text_path, std::string image_file, Eigen::Vector3d &position,
                        Eigen::Vector4d &attitude) {
-  bool parse_result;
-
   std::ifstream file(text_path);
   std::string str;
 
@@ -131,13 +129,58 @@ void writePositionsToFile(std::string output_path, std::vector<std::shared_ptr<V
   camera_logger->writeToFile(output_path);
 }
 
-bool getViewPointFromCOLMAP(std::string path, std::vector<std::shared_ptr<ViewPoint>> &reference,
+/**
+ * @brief Struct containing camera parameters
+ *
+ */
+struct CameraIntrinsics {  // Camera parameters
+  int width;
+  int height;
+  double focal_length;
+};
+
+bool parseCameraIntrinsicsFromText(const std::string &camera_path, CameraIntrinsics &intrinsics) {
+  // Write data to files
+  bool parse_result;
+
+  std::ifstream file(camera_path);
+  std::string str;
+
+  // Look for the image file name in the path
+  std::cout << "Camera Intrinsics: " << std::endl;
+  while (getline(file, str)) {
+    std::stringstream ss(str);
+    std::vector<std::string> data;
+    std::string cc;
+    while (getline(ss, cc, ' ')) {
+      data.push_back(cc);
+    }
+    if (data[0] == "#") continue;  // Ignore comments
+    // #   ID, x, y, z, qw, qx, qy, qz
+    ss >> data[0] >> data[1] >> data[2] >> data[3] >> data[4] >> data[5] >> data[6] >> data[7];
+    intrinsics.width = std::stoi(data[2]);
+    intrinsics.height = std::stoi(data[3]);
+    intrinsics.focal_length = std::stof(data[4]);
+    std::cout << "  - Camera Model: " << data[1] << std::endl;
+    std::cout << "  - intrinsics.width: " << intrinsics.width << std::endl;
+    std::cout << "  - intrinsics.height: " << intrinsics.height << std::endl;
+    std::cout << "  - intrinsics.focal_length: " << intrinsics.focal_length << std::endl;
+  }
+
+  return true;
+}
+
+bool getViewPointFromCOLMAP(std::string camera_path, std::string path,
+                            std::vector<std::shared_ptr<ViewPoint>> &reference,
                             std::vector<std::shared_ptr<ViewPoint>> &viewpoints) {
   int idx{0};
   /// TODO: Parse camera views from text file
 
-  std::cout << "Reading camera file: " << path << std::endl;
+  std::cout << "Reading camera file: " << camera_path << std::endl;
+  CameraIntrinsics camera_intrinsics;
+  parseCameraIntrinsicsFromText(camera_path, camera_intrinsics);
 
+  std::cout << "Reading image file: " << path << std::endl;
   for (auto reference_view : reference) {
     std::string image_name = reference_view->getImageName();
     Eigen::Vector3d view_position;
@@ -145,12 +188,14 @@ bool getViewPointFromCOLMAP(std::string path, std::vector<std::shared_ptr<ViewPo
     if (parsePoseFromText(path, image_name, view_position, view_attitude)) {
       auto R = quat2RotMatrix(view_attitude);
       Eigen::Vector3d local_position = -R.transpose() * view_position;
-      Eigen::Vector4d view_offset = Eigen::Vector4d(std::cos(M_PI_2), std::sin(M_PI_2), 0.0, 0.0);
-      Eigen::Vector4d local_attitude = quatMultiplication(view_offset, view_attitude);
+      Eigen::Vector4d view_offset = Eigen::Vector4d(std::cos(0.5 * M_PI), std::sin(0.5 * M_PI), 0.0, 0.0);
+      Eigen::Vector4d local_attitude = quatMultiplication(view_attitude, view_offset);
+      local_attitude = quatMultiplication(local_attitude, Eigen::Vector4d(std::cos(0.5 * M_PI_2), 0.0, 0.0, std::sin( 0.5 * M_PI_2)));
       /// TODO: Figure out why this is needed
       local_attitude(2) = -local_attitude(2);
-      // local_attitude(1) = -local_attitude(1);
-      auto viewpoint = std::make_shared<ViewPoint>(idx++, local_position, local_attitude);
+      local_attitude(1) = -local_attitude(1);
+      auto viewpoint = std::make_shared<ViewPoint>(idx++, local_position, local_attitude, camera_intrinsics.width,
+                                                   camera_intrinsics.height, camera_intrinsics.focal_length);
       viewpoint->setImageName(image_name);
       viewpoints.push_back(viewpoint);
     }

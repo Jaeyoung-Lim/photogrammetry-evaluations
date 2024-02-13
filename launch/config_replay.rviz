@@ -58,32 +58,35 @@ Visualization Manager:
       Reference Frame: <Fixed Frame>
       Value: true
     - Alpha: 0.5
-      Autocompute Intensity Bounds: true
+      Autocompute Intensity Bounds: false
       Class: grid_map_rviz_plugin/GridMap
       Color: 0; 0; 255
-      Color Layer: geometric_prior
+      Color Layer: visibility
       Color Transformer: IntensityLayer
+      ColorMap: default
       Enabled: true
+      Grid Cell Decimation: 1
+      Grid Line Thickness: 0.10000000149011612
       Height Layer: elevation
       Height Transformer: GridMapLayer
       History Length: 1
-      Invert Rainbow: false
+      Invert ColorMap: false
       Max Color: 255; 255; 255
-      Max Intensity: 10
+      Max Intensity: 4
       Min Color: 0; 0; 0
       Min Intensity: 0
       Name: GridMap
       Show Grid Lines: false
       Topic: /terrain
       Unreliable: false
-      Use Rainbow: true
+      Use ColorMap: true
       Value: true
     - Class: rviz/MarkerArray
       Enabled: true
       Marker Topic: /viewpoints
       Name: MarkerArray
       Namespaces:
-        my_namespace: true
+        {}
       Queue Size: 100
       Value: true
     - Alpha: 1
@@ -124,11 +127,14 @@ Visualization Manager:
       Color: 200; 200; 200
       Color Layer: reconstruction
       Color Transformer: IntensityLayer
+      ColorMap: default
       Enabled: true
+      Grid Cell Decimation: 1
+      Grid Line Thickness: 0.10000000149011612
       Height Layer: reconstruction
       Height Transformer: GridMapLayer
       History Length: 1
-      Invert Rainbow: false
+      Invert ColorMap: false
       Max Color: 255; 255; 255
       Max Intensity: 10
       Min Color: 0; 0; 0
@@ -137,7 +143,7 @@ Visualization Manager:
       Show Grid Lines: true
       Topic: /reconstruction
       Unreliable: false
-      Use Rainbow: true
+      Use ColorMap: true
       Value: true
   Enabled: true
   Global Options:
@@ -167,7 +173,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 1492.5504150390625
+      Distance: 545.1386108398438
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -175,17 +181,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 391.273193359375
-        Y: 433.6725769042969
-        Z: 428.7372741699219
+        X: -47.9627799987793
+        Y: -75.56610107421875
+        Z: 484.3159484863281
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5447970032691956
+      Pitch: 0.7797973155975342
       Target Frame: <Fixed Frame>
-      Yaw: 4.0448174476623535
+      Yaw: 4.809787750244141
     Saved: ~
 Window Geometry:
   Displays:

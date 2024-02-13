@@ -4,10 +4,11 @@
     <arg name="dataset_path" default="$(find photogrammetry_evaluations)/dataset/images"/>
     <!-- <arg name="dem_path" default="$(find photogrammetry_evaluations)/resources/cadastre_1m.tif"/> -->
     <!-- <arg name="dem_color_path" default="$(find photogrammetry_evaluations)/resources/cadastre_1m_color.tif"/> -->
-    <arg name="dem_path" default="$(find photogrammetry_evaluations)/resources/quarry_1m.tif"/>
-    <arg name="dem_color_path" default="$(find photogrammetry_evaluations)/resources/quarry_1m_color.tif"/>
+    <arg name="dem_path" default="$(find terrain_models)/models/hinwil.tif"/>
+    <arg name="dem_color_path" default="$(find terrain_models)/models/hinwil_color.tif"/>
     <arg name="mesh_path" default="$(find photogrammetry_evaluations)/dataset/dense/meshed-poisson.ply"/>
     <arg name="camera_file" default="$(find photogrammetry_evaluations)/dataset/sparse/1/images.txt"/>
+    <arg name="camera_parameters" default="$(find photogrammetry_evaluations)/dataset/sparse/1/cameras.txt"/>
 
     <node pkg="tf" type="static_transform_publisher" name="world_map" args="0 0 0 0 0 0 world map 10"/>
     <node pkg="photogrammetry_evaluations" type="replay_node" name="test_mesh" output="screen" required="true">
@@ -15,6 +16,7 @@
         <param name="dem_color_path" value="$(arg dem_color_path)"/>
         <param name="viewset_path" value="$(arg dataset_path)"/>
         <param name="camera_file" value="$(arg camera_file)"/>
+        <param name="camera_parameters" value="$(arg camera_parameters)"/>
         <param name="output_dir_path" value="$(find photogrammetry_evaluations)/output"/>
         <param name="mesh_path" value="$(arg mesh_path)"/>
     </node>
