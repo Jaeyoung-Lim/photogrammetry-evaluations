@@ -1,12 +1,13 @@
 <launch>
 <!-- Compare mesh between two meshes -->
     <arg name="dataset_path" default="$(find photogrammetry_evaluations)/dataset/images"/>
+    <arg name="output_path" default="$(find photogrammetry_evaluations)/output"/>
     <arg name="dem_path" default="$(find terrain_models)/models/hinwil.tif"/>
 
     <node pkg="tf" type="static_transform_publisher" name="world_map" args="0 0 0 0 0 0 world map 10"/>
     <node pkg="photogrammetry_evaluations" type="process_geotag" name="test_mesh" output="screen" required="true">
         <param name="dem_path" value="$(arg dem_path)"/>
         <param name="viewset_path" value="$(arg dataset_path)"/>
-        <param name="output_dir_path" value="$(find photogrammetry_evaluations)/output"/>
+        <param name="output_dir_path" value="$(arg output_path)"/>
     </node>
 </launch>
