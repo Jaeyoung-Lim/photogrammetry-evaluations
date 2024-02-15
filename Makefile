@@ -16,5 +16,8 @@ increment:
 reconstruct:
 	./scripts/reconstruction.sh ${dataset} .
 
+process-geotag:
+	./scripts/process_geotag.sh ${dataset} ${dataset}
+
 register:
 	./scripts/register.sh ${dataset} .
