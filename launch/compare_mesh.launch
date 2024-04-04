@@ -2,8 +2,9 @@
 <!-- Compare mesh between two meshes -->
     <arg name="visualization" default="true"/>
     <arg name="path" default="/home/jaeyoung/dev/random/map_data.csv"/>
-    <arg name="groundtruth_mesh" default="/home/jaeyoung/dev/mesh/groundtruth_roi_meshlab.obj"/>
-    <arg name="estimated_mesh" default="/mnt/dataset/Results/nbv_greedy/benchmark_0/9/dense/meshed-poisson.ply"/>
+    <arg name="groundtruth_mesh" default="/mnt/storage/output/8/dense/meshed-poisson.ply"/>
+    <arg name="estimated_mesh" default="/mnt/storage/output/8/dense/meshed-poisson.ply"/>
+
 
     <node pkg="tf" type="static_transform_publisher" name="world_map" args="0 0 0 0 0 0 world map 10"/>
     <node pkg="photogrammetry_evaluations" type="compare_mesh_node" name="test_mesh" output="screen" required="true">

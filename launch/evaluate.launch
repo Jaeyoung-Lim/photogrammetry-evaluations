@@ -6,16 +6,20 @@
     <!-- <arg name="dataset_path" default="/home/jaeyoung/Downloads/hinwil_manualfocus/images"/> -->
     <arg name="dem_path" default="$(find terrain_models)/models/hinwil.tif"/>
     <arg name="dem_color_path" default="$(find terrain_models)/models/hinwil_color.tif"/>
+    <arg name="roi_path" default="$(find terrain_models)/models/hinwil_roi.tif"/>
+    <!-- <arg name="dem_color_path" default=""/> -->
 
     <node pkg="tf" type="static_transform_publisher" name="world_map" args="0 0 0 0 0 0 world map 10"/>
-    <node pkg="photogrammetry_evaluations" type="replay_node" name="test_mesh" output="screen" required="true">
+    <node pkg="photogrammetry_evaluations" type="evaluate_node" name="test_mesh" output="screen" required="true">
         <param name="dem_path" value="$(arg dem_path)"/>
         <param name="dem_color_path" value="$(arg dem_color_path)"/>
+        <param name="roi_path" value="$(arg roi_path)"/>
         <param name="viewset_path" value="$(arg dataset_path)"/>
         <param name="camera_file" value="$(arg dataset_path)/../sparse/1/images.txt"/>
         <param name="camera_parameters" value="$(arg dataset_path)/../sparse/1/cameras.txt"/>
         <param name="output_dir_path" value="$(find photogrammetry_evaluations)/output"/>
         <param name="mesh_path" value="$(arg dataset_path)/../dense/meshed-poisson.ply"/>
+        <param name="gt_mesh_path" value="/mnt/storage/coverage/8/dense/meshed-poisson.ply"/>
     </node>
 
     <group if="$(arg visualization)">

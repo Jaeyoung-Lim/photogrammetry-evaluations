@@ -11,7 +11,7 @@ format:
 
 increment: SHELL:=/bin/bash
 increment:
-	./scripts/incremental_reconstruction.sh -d ${dataset} -o ${CURDIR}/output
+	./scripts/incremental_reconstruction.sh -d ${dataset} -o /mnt/storage/output
 
 reconstruct:
 	./scripts/reconstruction.sh ${dataset} .

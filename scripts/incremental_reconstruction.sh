@@ -8,9 +8,9 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 usage() { echo "Usage: $0 [-i <increment>] [-n <num_images>] [-s <start_index>]" 1>&2; exit 1; }
 
-min_images=5
-increment=5
-max_images=30
+min_images=10
+increment=10
+max_images=141
 
 while getopts ":i:d:o:p:g:n:" arg; do
     case ${arg} in
@@ -37,7 +37,7 @@ while getopts ":i:d:o:p:g:n:" arg; do
 done
 
 instance=0
-num_images=$(ls ${DATASET_PATH}/images/*.jpeg | wc -l)
+num_images=$(ls ${DATASET_PATH}/images/*.JPG | wc -l)
 
 
 target_num_images=$((${num_images}>${max_images} ? ${max_images} : ${num_images}))
