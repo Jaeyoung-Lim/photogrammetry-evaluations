@@ -10,7 +10,7 @@ usage() { echo "Usage: $0 [-i <increment>] [-n <num_images>] [-s <start_index>]"
 
 min_images=10
 increment=10
-max_images=141
+max_images=200
 
 while getopts ":i:d:o:p:g:n:" arg; do
     case ${arg} in

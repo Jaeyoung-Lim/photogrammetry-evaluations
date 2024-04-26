@@ -1,4 +1,5 @@
 dataset?=${CURDIR}/dataset
+output?=/mnt/storage/output
 
 clean:
 	rm -rf dataset/dense/*
@@ -11,7 +12,7 @@ format:
 
 increment: SHELL:=/bin/bash
 increment:
-	./scripts/incremental_reconstruction.sh -d ${dataset} -o /mnt/storage/output
+	./scripts/incremental_reconstruction.sh -d ${dataset} -o ${output}
 
 reconstruct:
 	./scripts/reconstruction.sh ${dataset} .

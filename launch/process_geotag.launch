@@ -2,7 +2,8 @@
 <!-- Compare mesh between two meshes -->
     <arg name="dataset_path" default="$(find photogrammetry_evaluations)/dataset/images"/>
     <arg name="output_path" default="$(find photogrammetry_evaluations)/output"/>
-    <arg name="dem_path" default="$(find terrain_models)/models/hinwil.tif"/>
+    <arg name="location" default="fluelatal"/>
+    <arg name="dem_path" default="$(find terrain_models)/models/$(arg location).tif"/>
 
     <node pkg="tf" type="static_transform_publisher" name="world_map" args="0 0 0 0 0 0 world map 10"/>
     <node pkg="photogrammetry_evaluations" type="process_geotag" name="test_mesh" output="screen" required="true">
