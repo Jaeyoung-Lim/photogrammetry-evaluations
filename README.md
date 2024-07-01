@@ -7,6 +7,22 @@ This repository contains tools for evaluating photogrammetry results using [COLM
 ![rviz_screenshot_2023_11_21-13_15_28](https://github.com/Jaeyoung-Lim/photogrammetry-evaluations/assets/5248102/5bf7bae7-13fb-41f2-ba35-74bc908fd493)
 
 
+## Citation
+This package was developed for the paper listed below. If you find this package useful, please consider citing the following.
+- Lim, Jaeyoung, Nicholas Lawrance, Florian Achermann, Thomas Stastny, Rik Bähnemann, and Roland Siegwart. "Fisher information based active planning for aerial photogrammetry." In 2023 IEEE International Conference on Robotics and Automation (ICRA), pp. 1249-1255. IEEE, 2023.
+\[[paper](https://ieeexplore.ieee.org/document/10161136/)\]
+
+```
+@inproceedings{lim2023fisher,
+  title={Fisher information based active planning for aerial photogrammetry},
+  author={Lim, Jaeyoung and Lawrance, Nicholas and Achermann, Florian and Stastny, Thomas and B{\"a}hnemann, Rik and Siegwart, Roland},
+  booktitle={2023 IEEE International Conference on Robotics and Automation (ICRA)},
+  pages={1249--1255},
+  year={2023},
+  organization={IEEE}
+}
+```
+
 ## Setup
 We use COLMAP for the Multiview Stereo pipeline. To install, follow the installation [instructions](https://colmap.github.io/install.html).
 ```
