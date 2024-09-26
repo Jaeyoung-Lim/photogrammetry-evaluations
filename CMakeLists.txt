@@ -8,6 +8,7 @@ find_package(GDAL)
 find_package(OpenCV REQUIRED)
 find_package(GeographicLib REQUIRED)
 include(CheckGeographicLibDatasets)
+find_package(GTSAM)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
@@ -39,6 +40,7 @@ include_directories(
   ${Eigen_INCLUDE_DIRS}
   ${GDAL_INCLUDE_DIRS}
   ${GeographicLib_INCLUDE_DIRS}
+  ${GTSAM_INCLUDE_DIRS}
 )
 
 add_library(${PROJECT_NAME}
@@ -67,6 +69,12 @@ add_executable(process_geotag
 )
 add_dependencies(process_geotag ${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} ${GDAL_LIBRARY})
 target_link_libraries(process_geotag ${PROJECT_NAME} ${catkin_LIBRARIES} ${GDAL_LIBRARY} ${OpenCV_LIBRARIES} pthread ${GeographicLib_LIBRARIES})
+
+add_executable(test_sfm
+  src/test_sfm.cpp
+)
+add_dependencies(test_sfm ${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} ${GDAL_LIBRARY})
+target_link_libraries(test_sfm ${PROJECT_NAME} ${catkin_LIBRARIES} gtsam ${OpenCV_LIBRARIES} ${GTSAM_LIBRARY} pthread)
 
 #############
 ## Testing ##
